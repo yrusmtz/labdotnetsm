@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginBlazor", "LoginBlazor\LoginBlazor.csproj", "{D526C043-BF6F-48E3-842A-B611766BB578}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginService", "LoginService\LoginService.csproj", "{0AF07B50-A28E-4E8A-B712-DB1AABE8597A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginShared", "LoginShared\LoginShared.csproj", "{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D526C043-BF6F-48E3-842A-B611766BB578}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D526C043-BF6F-48E3-842A-B611766BB578}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D526C043-BF6F-48E3-842A-B611766BB578}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D526C043-BF6F-48E3-842A-B611766BB578}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AF07B50-A28E-4E8A-B712-DB1AABE8597A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AF07B50-A28E-4E8A-B712-DB1AABE8597A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AF07B50-A28E-4E8A-B712-DB1AABE8597A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AF07B50-A28E-4E8A-B712-DB1AABE8597A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
