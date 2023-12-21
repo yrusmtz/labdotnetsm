@@ -1,4 +1,7 @@
+using LoginService;
+using LoginShared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
@@ -9,6 +12,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+List<UserDto> userDb = new List<UserDto>();
+
+// Add services to the container.
+builder.Services.AddSingleton<UserService>(new UserService(userDb));
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -16,14 +24,11 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme,
             new OpenApiSecurityScheme
-            { Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
-              Description = "Insert the token with the 'Bearer ' prefix", });
+            { Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization, Description = "Insert the token with the 'Bearer ' prefix", });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-            { new OpenApiSecurityScheme
-              { Reference = new OpenApiReference
-                { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme } },
+            { new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme } },
               new string[] { } } }
     );
 });
@@ -44,36 +49,25 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Use the UserService
+var userService = app.Services.GetRequiredService<UserService>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // Poblar la base de datos con algunos usuarios
+    userService.CreateUser(new UserDto(Email: "user1@example.com", Password: "password1"));
+    userService.CreateUser(new UserDto(Email: "user2@example.com", Password: "password2"));
+    userService.CreateUser(new UserDto(Email: "user3@example.com", Password: "password3"));
 }
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-var summaries = new[]
-{ "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-
-app.MapGet("/weatherforecast", () =>
-        {
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                            new WeatherForecast
-                            (
-                                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                                    Random.Shared.Next(-20, 55),
-                                    summaries[Random.Shared.Next(summaries.Length)]
-                            ))
-                    .ToArray();
-            return forecast;
-        })
-        .WithName("GetWeatherForecast")
-        .RequireAuthorization()
-        .WithOpenApi();
 
 // Protected endpoint with authorization for testing purposes
 app.MapGet("/protected", () => "Hello World!, you are authenticated")
@@ -112,9 +106,37 @@ app.MapPost("/auth/login", (LoginRequest request) =>
         .AllowAnonymous()
         .WithOpenApi();
 
-app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// Endpoint para crear un nuevo usuario
+app.MapPost("/users", (UserDto newUser) =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+    var createdUser = userService.CreateUser(newUser);
+    return Results.Created($"/users/{createdUser.Email}", createdUser);
+}).WithName("CreateUser").WithOpenApi();
+
+// Endpoint para obtener todos los usuarios
+app.MapGet("/users", () => userService.GetAllUsers()).WithName("GetAllUsers").WithOpenApi();
+
+// Endpoint para obtener la información de un usuario específico
+app.MapGet("/users/{userId}", (string userId) =>
+{
+    var user = userService.GetUser(userId);
+    if (user == null)
+    {
+        return Results.NotFound($"User with ID {userId} not found.");
+    }
+    return Results.Ok(user);
+});
+
+// Endpoint para actualizar la contraseña de un usuario
+app.MapPut("/users/{userId}", (string userId, UserDto updatedUser) =>
+{
+    var user = userService.UpdateUserPassword(userId, updatedUser);
+    if (user == null)
+    {
+        return Results.NotFound($"User with ID {userId} not found.");
+    }
+    return Results.Ok(user);
+}).WithName("UpdateUserPassword").WithOpenApi();
+
+app.Run();

@@ -20,4 +20,8 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LoginShared\LoginShared.csproj" />
+    </ItemGroup>
+
 </Project>
