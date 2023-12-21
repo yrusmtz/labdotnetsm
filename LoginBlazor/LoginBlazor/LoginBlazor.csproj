@@ -12,6 +12,23 @@
         <Link>.dockerignore</Link>
       </Content>
       <Content Include="assets\img\.DS_Store" />
+      <Content Include="wwwroot\assets\css\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\icons\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\icons\line-icons\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\icons\line-icons\font\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\icons\solid-icons\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\icons\solid-icons\font\.DS_Store" />
+      <Content Include="wwwroot\assets\premium\icon-sets\thumbs\.DS_Store" />
+      <Content Include="wwwroot\premium\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\icons\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\icons\line-icons\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\icons\line-icons\font\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\icons\solid-icons\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\icons\solid-icons\font\.DS_Store" />
+      <Content Include="wwwroot\premium\icon-sets\thumbs\.DS_Store" />
     </ItemGroup>
 
     <ItemGroup>
