@@ -49,7 +49,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Use the UserService
 var userService = app.Services.GetRequiredService<UserService>();
 
 // Configure the HTTP request pipeline.
@@ -62,6 +61,7 @@ if (app.Environment.IsDevelopment())
     userService.CreateUser(new UserDto(Email: "user1@example.com", Password: "password1"));
     userService.CreateUser(new UserDto(Email: "user2@example.com", Password: "password2"));
     userService.CreateUser(new UserDto(Email: "user3@example.com", Password: "password3"));
+    userService.CreateUser(new UserDto(Email: "sury@example.com", Password: "Martinez"));
 }
 
 app.UseHttpsRedirection();
@@ -78,7 +78,8 @@ app.MapGet("/protected", () => "Hello World!, you are authenticated")
 // Login endpoint
 app.MapPost("/auth/login", (LoginRequest request) =>
         {
-            if (request.Email == "sury@example.com" && request.Password == "Martinez")
+            var user = userService.GetUser(request.Email);
+            if (user != null && request.Password == user.Password)
             {
                 // JWT token generation
                 var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
@@ -107,17 +108,14 @@ app.MapPost("/auth/login", (LoginRequest request) =>
         .WithOpenApi();
 
 
-// Endpoint para crear un nuevo usuario
 app.MapPost("/users", (UserDto newUser) =>
 {
     var createdUser = userService.CreateUser(newUser);
     return Results.Created($"/users/{createdUser.Email}", createdUser);
 }).WithName("CreateUser").WithOpenApi();
 
-// Endpoint para obtener todos los usuarios
 app.MapGet("/users", () => userService.GetAllUsers()).WithName("GetAllUsers").WithOpenApi();
 
-// Endpoint para obtener la información de un usuario específico
 app.MapGet("/users/{userId}", (string userId) =>
 {
     var user = userService.GetUser(userId);
@@ -128,7 +126,6 @@ app.MapGet("/users/{userId}", (string userId) =>
     return Results.Ok(user);
 });
 
-// Endpoint para actualizar la contraseña de un usuario
 app.MapPut("/users/{userId}", (string userId, UserDto updatedUser) =>
 {
     var user = userService.UpdateUserPassword(userId, updatedUser);
