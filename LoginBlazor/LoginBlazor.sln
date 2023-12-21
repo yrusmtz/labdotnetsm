@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginService", "LoginServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginShared", "LoginShared\LoginShared.csproj", "{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginBlazor2", "LoginBlazor2\LoginBlazor2.csproj", "{B087CB99-EA36-4835-8043-DFBB63D681A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22FB03C1-98EE-4B16-8F50-1C316BECBCB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B087CB99-EA36-4835-8043-DFBB63D681A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B087CB99-EA36-4835-8043-DFBB63D681A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B087CB99-EA36-4835-8043-DFBB63D681A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B087CB99-EA36-4835-8043-DFBB63D681A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
