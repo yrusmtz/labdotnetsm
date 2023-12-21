@@ -30,7 +30,7 @@
                 </EditForm>
                 <div class="d-flex justify-content-between mt-4">
                     <a href="#" class="btn-link text-decoration-none">Olvidaste tu contraseña </a>
-                    <a href="#" class="btn-link text-decoration-none">Crear contraseña</a>
+                    <a href="#" class="btn-link text-decoration-none"> Crear contraseña</a>
                 </div>
 
             </div>
@@ -44,6 +44,7 @@
 
 
 @code {
+
     private class LoginFormModel
     {
         public string Email { get; set; }
@@ -56,6 +57,16 @@
     private void HandleValidSubmit()
     {
         // Agrega el código para procesar el inicio de sesión aquí.
-        NavigationManager.NavigateTo("/users");
+        Console.WriteLine("Email: {0}, Password: {1}", loginForm.Email, loginForm.Password);
+
+        if (loginForm.Email == "admin" && loginForm.Password == "admin")
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/"); // Deberías mover la redirección aquí en caso de que la autenticación falle  
+        }
     }
+
 }

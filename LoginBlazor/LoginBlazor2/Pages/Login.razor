@@ -3,6 +3,8 @@
 @using System.IdentityModel.Tokens.Jwt
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
+@using System.Text.Json
+@using System.Text
 
 <h3>Login</h3>
 
@@ -27,6 +29,13 @@
                     <div class="d-grid mt-5">
                         <button type="submit" class="btn btn-primary btn-lg">Continuar</button>
                     </div>
+                    
+                    @if (!string.IsNullOrEmpty(loginForm.ErrorMessage))
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @loginForm.ErrorMessage
+                        </div>
+                    }
                 </EditForm>
                 <div class="d-flex justify-content-between mt-4">
                     <a href="#" class="btn-link text-decoration-none">Olvidaste tu contraseña </a>
@@ -44,28 +53,46 @@
 
 
 @code {
+
     private class LoginFormModel
     {
         public string Email { get; set; }
         public string Password { get; set; }
+        public string ErrorMessage { get; set; }
     }
 
     private LoginFormModel loginForm = new LoginFormModel();
     private JwtSecurityToken jwtToken = null;
 
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
-        // Agrega el código para procesar el inicio de sesión aquí.
-        if (loginForm.Email == "admin" && loginForm.Password == "admin")
+        var loginRequest = new { Email = loginForm.Email, Password = loginForm.Password };
+        var data = new StringContent(JsonSerializer.Serialize(loginRequest), Encoding.UTF8, "application/json");
+
+        var response = await Http.PostAsync("/auth/login", data);
+
+        if (response.IsSuccessStatusCode)
         {
-            // Si el inicio de sesión es exitoso, navegue a la página de inicio.
-            NavigationManager.NavigateTo("/users");
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseBody = JsonSerializer.Deserialize<Dictionary<string, string>>(responseContent);
+
+            if (responseBody.TryGetValue("AccessToken", out string token))
+            {
+                // jwtToken es una variable global donde almacenaremos el token
+                jwtToken = new JwtSecurityToken(token);
+
+                // Aquí puedes manejar la navegación de acuerdo a si la autenticación fue exitosa
+                NavigationManager.NavigateTo("/users");
+            }
+            else
+            {
+                // Mostrar algún error en caso de no poder obtener el token
+            }
         }
         else
         {
-            // Si el inicio de sesión falla, muestre un mensaje de error avisar al usuario por medio de un modal.
-            
+            // Mostrar un error al usuario en caso de que las credenciales sean incorrectas, etc.
         }
-        
     }
+
 }

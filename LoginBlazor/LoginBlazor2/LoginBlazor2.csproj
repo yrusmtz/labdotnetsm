@@ -24,4 +24,24 @@
       <ProjectReference Include="..\LoginShared\LoginShared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\10.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\7.png" />
+    </ItemGroup>
+
 </Project>
