@@ -1,0 +1,75 @@
+@startuml
+actor Cliente
+participant "API: /auth/login" as Login
+participant "API: /users" as Users
+participant UserService
+
+Cliente -> Login: POST (email, password)
+Login -> UserService: GetUser(email)
+UserService --> Login: UserDto (email, password)
+Login -> Login: Verificar contraseña
+Login -> Login: Generar JWT
+Login --> Cliente: JWT
+
+Cliente -> Users: POST (UserDto)
+Users -> UserService: CreateUser(UserDto)
+UserService --> Users: UserDto (email, password)
+Users --> Cliente: UserDto (email, password)
+
+Cliente -> Users: GET
+Users -> UserService: GetAllUsers()
+UserService --> Users: List<UserDto>
+Users --> Cliente: List<UserDto>
+
+Cliente -> Users: GET (userId)
+Users -> UserService: GetUser(userId)
+UserService --> Users: UserDto (email, password)
+Users --> Cliente: UserDto (email, password)
+
+Cliente -> Users: PUT (userId, UserDto)
+Users -> UserService: UpdateUserPassword(userId, UserDto)
+UserService --> Users: UserDto (email, password)
+Users --> Cliente: UserDto (email, password)
+@enduml
+
+@startuml
+class WebApplication {
+    +CreateBuilder(args: string[]): WebApplicationBuilder
+    +Build(): WebApplication
+}
+
+class WebApplicationBuilder {
+    +Services: IServiceCollection
+    +Build(): WebApplication
+}
+
+class WebApplication {
+    +Services: IServiceProvider
+    +UseSwagger(): WebApplication
+    +UseSwaggerUI(): WebApplication
+    +UseHttpsRedirection(): WebApplication
+    +UseAuthentication(): WebApplication
+    +UseAuthorization(): WebApplication
+    +MapGet(pattern: string, handler: Delegate): WebApplication
+    +MapPost(pattern: string, handler: Delegate): WebApplication
+    +MapPut(pattern: string, handler: Delegate): WebApplication
+    +Run(): void
+}
+
+class UserService {
+    +CreateUser(newUser: UserDto): UserDto
+    +GetAllUsers(): List<UserDto>
+    +GetUser(userId: string): UserDto?
+    +UpdateUserPassword(userId: string, updatedUser: UserDto): UserDto?
+}
+
+class UserDto {
+    +Email: string
+    +Password: string
+}
+
+WebApplication --> WebApplicationBuilder: Creates
+WebApplicationBuilder --> UserService: Adds to services
+WebApplication --> UserService: Uses
+UserService --> UserDto: Manages
+@enduml
