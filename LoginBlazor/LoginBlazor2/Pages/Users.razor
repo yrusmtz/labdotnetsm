@@ -1,79 +1,86 @@
 ﻿@page "/Users"
-@using Microsoft.AspNetCore.Components.Web
+@using LoginShared
 @inject HttpClient Http
 
 <div class="content__boxed">
     <div class="content__wrap">
         <div class="row mt-3">
             <div class="col-sm-6 col-md-4 col-xl-3 mb-3">
-                <div class="card">
-                    <div class="card-body pt-2">
-                        <div class="d-flex justify-content-end gap-1">
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="demo-pli-dot-horizontal fs-4"></i>
-                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a href="#" class="dropdown-item">
-                                            <i class="demo-pli-pen-5 fs-5 me-2"></i> Edit
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="dropdown-item text-danger">
-                                            <i class="demo-pli-recycling fs-5 me-2"></i> Remove
-                                        </a>
-                                    </li>
-                                </ul>
+                @if (users == null)
+                {
+                    <p>
+                        <em>Cargando...</em>
+                    </p>
+                }
+                else
+                {
+                    @foreach (var user in users)
+                    {
+                        <div class="card stylish-card">
+                            <div class="card-body">
+                                <h4 class="card-title">@user.Name</h4>
+                                <h6 class="card-subtitle mb-2 text-muted">@user.Email</h6>
+                                <p class="card-text">@user.Title</p>
+                                @foreach (var role in user.Roles)
+                                {
+                                    <span class="badge badge-primary">@role</span>
+                                }
                             </div>
                         </div>
-                        <div class="text-center position-relative">
-                            <div class="pb-3">
-                                <img class="img-lg rounded-circle" src="./assets/img/profile-photos/1.png" alt="Profile Picture" loading="lazy">
-                            </div>
-                            <a href="#" class="h5 stretched-link btn-link">Usuarios</a>
-                            <p class="text-muted">ClicK Aqui</p>
-                        </div>
-                    </div>
-                </div>
+                        <br/>
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
 
-@* @if (users == null) *@
-@* { *@
-@*     <p> *@
-@*         <em>Cargando...</em> *@
-@*     </p> *@
-@* } *@
-@* else *@
-@* { *@
-@*     @foreach (var user in users) *@
-@*     { *@
-@*         <div class="card"> *@
-@*             <div class="card-body"> *@
-@*                 $1$ ... Asignar campos de usuario específicos aquí ... #1# *@
-@*                 <h5>@user.Name</h5> *@
-@*                 <p>@user.Id</p> *@
-@*                 $1$ ... Más campos si es necesario ... #1# *@
-@*             </div> *@
-@*         </div> *@
-@*     } *@
-@* } *@
+<style>
+.stylish-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+.stylish-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.card-title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.card-subtitle {
+    font-size: 1.2em;
+}
+
+.badge {
+    margin-right: 5px;
+}
+</style>
 
 @code {
-    // private User[] users;
-    //
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     users = await Http.GetFromJsonAsync<User[]>("api/Users");
-    // }
 
+    private List<User>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // users = await Http.GetFromJsonAsync<List<User>>("api/Users");
+
+        await Task.Delay(2000); // Espera 2 segundos
+
+        Role userRole = new Role("User", "Usuario Normal");
+        Role adminRole = new Role("Admin", "Administrador");
+        Role superAdminRole = new Role("SuperAdmin", "Super Administrador");
+
+        users = new List<User>
+        { new User("Surynam", "suryname@example.com", "Title",
+                  new List<Role> { userRole, adminRole }),
+          new User("Guyana Holandesa", "guyanaholandesa@example.com", "Title2",
+                  new List<Role> { userRole }),
+          new User("Guyana Francesa", "guyanahrancesa@example.com", "Title2",
+                  new List<Role> { userRole, superAdminRole }), };
+    }
 }
-```
-I have the following error:
-> System.Net.Http.HttpRequestException: 'Response status code does not indicate success: 404 (Not Found).'
-I have the following error:
-> System.Net.Http.HttpRequestException: 'Response status code does not indicate success: 404 (Not Found).'
