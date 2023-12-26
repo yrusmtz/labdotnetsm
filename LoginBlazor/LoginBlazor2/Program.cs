@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using LoginBlazor2;
 using Blazored.LocalStorage;
+using LoginBlazor2.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,4 +18,5 @@ else
 }
 
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddHttpClient<UserService>();
 await builder.Build().RunAsync();

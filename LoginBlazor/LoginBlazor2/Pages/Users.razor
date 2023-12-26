@@ -1,6 +1,9 @@
 ﻿@page "/Users"
 @using LoginShared
 @inject HttpClient Http
+@using LoginBlazor2.Services
+// Add the namespace where your UserService is located
+@inject UserService UserService
 
 <div class="content__boxed">
     <div class="content__wrap">
@@ -61,22 +64,12 @@
 }
 </style>
 
-@code {
 
+@code {
     private List<User>? users;
 
     protected override async Task OnInitializedAsync()
     {
-        users= await GetUsers();
-        
+        users = await UserService.GetUsers();
     }
-
-    private async Task<List<User>> GetUsers()
-    {
-        users = await Http.GetFromJsonAsync<List<User>>("users");
-        Console.WriteLine(users);
-        return users;
-        
-    }
-
 }
