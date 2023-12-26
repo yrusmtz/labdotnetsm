@@ -2,68 +2,77 @@
 @using LoginShared
 @inject HttpClient Http
 @using LoginBlazor2.Services
-// Add the namespace where your UserService is located
 @inject UserService UserService
+
+
+<div class="content__header content__boxed overlapping">
+    <div class="content__wrap">
+        <div class="d-md-flex align-items-end">
+            <div class="me-auto">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="./index.html">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Users</li>
+                    </ol>
+                </nav>
+                <!-- END : Breadcrumb -->
+                <h1 class="page-title mb-0 mt-2">Users</h1>
+
+
+            </div>
+            <div class="flex-grow-1 d-flex flex-wrap justify-content-end align-items-center gap-3">
+
+                <button type="button" class="btn btn-secondary btn-lg hstack gap-2">
+                    <i class="demo-psi-add fs-4"></i>
+                    <span class="vr"></span>
+                    Add new
+                </button>
+
+                <div class="w-auto text-nowrap">
+
+                    <button type="button" class="btn btn-light btn-icon">
+                        <i class="demo-pli-gear fs-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 <div class="content__boxed">
     <div class="content__wrap">
         <div class="row mt-3">
-            <div class="col-sm-6 col-md-4 col-xl-3 mb-3">
-                @if (users == null)
+            @if (users != null)
+            {
+                @foreach (var user in users)
                 {
-                    <p>
-                        <em>Cargando...</em>
-                    </p>
-                }
-                else
-                {
-                    @foreach (var user in users)
-                    {
-                        <div class="card stylish-card">
-                            <div class="card-body">
-                                <h4 class="card-title">@user.Name</h4>
-                                <h6 class="card-subtitle mb-2 text-muted">@user.Email</h6>
-                                <p class="card-text">@user.Title</p>
-                                @foreach (var role in user.Roles)
-                                {
-                                    <span class="badge badge-primary">@role</span>
-                                }
+                    <div class="col-sm-6 col-md-4 col-xl-3 mb-3">
+                        <div class="card">
+                            <div class="card-body pt-2">
+
+                                <!-- Profile picture and short information -->
+                                <div class="text-center position-relative">
+                                    <div class="pb-3">
+                                        <img class="img-lg rounded-circle" src="./assets/img/profile-photos/3.png" alt="Profile Picture" loading="lazy">
+                                    </div>
+                                    <a href="#" class="h5 stretched-link btn-link">@user.Name</a>
+                                    <p class="text-muted">@user.Title</p>
+                                </div>
+                                <p class="text-center">@user.Email</p>
+                                <!-- END : Profile picture and short information -->
+
                             </div>
                         </div>
-                        <br/>
-                    }
+                    </div>
                 }
-            </div>
+            }
         </div>
     </div>
 </div>
-
-<style>
-.stylish-card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-}
-
-.stylish-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-.card-title {
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
-.card-subtitle {
-    font-size: 1.2em;
-}
-
-.badge {
-    margin-right: 5px;
-}
-</style>
-
 
 @code {
     private List<User>? users;
@@ -72,4 +81,5 @@
     {
         users = await UserService.GetUsers();
     }
+
 }
