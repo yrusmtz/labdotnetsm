@@ -1,3 +1,4 @@
 namespace LoginShared;
 
-public record JwtToken(string Token);
+public record 
+    JwtToken(string Token);

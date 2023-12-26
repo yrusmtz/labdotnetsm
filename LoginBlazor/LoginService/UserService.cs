@@ -25,13 +25,28 @@ public class UserService(List<UserDto> users)
 
     public UserDto? UpdateUserPassword(string userId, UserDto updatedUser)
     {
+        for (int i = 0; i < _users.Count; i++)
+        {
+            if (_users[i].Email == userId)
+            {
+                _users[i] = updatedUser;
+                return _users[i];
+            }
+        }
+
+        return null;
+    }
+
+    //delete user
+    public UserDto? DeleteUser(string userId)
+    {
         var user = _users.Find(u => u.Email == userId);
         if (user != null)
         {
-            user = updatedUser;
+            _users.Remove(user);
             return user;
         }
-        return null;
 
+        return null;
     }
 }

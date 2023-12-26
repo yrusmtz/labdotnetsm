@@ -5,6 +5,8 @@
 @inject NavigationManager NavigationManager
 @using System.Text.Json
 @using System.Text
+@using Console = System.Console
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <h3>Login</h3>
 
@@ -29,7 +31,7 @@
                     <div class="d-grid mt-5">
                         <button type="submit" class="btn btn-primary btn-lg">Continuar</button>
                     </div>
-                    
+
                     @if (!string.IsNullOrEmpty(loginForm.ErrorMessage))
                     {
                         <div class="alert alert-danger mt-3" role="alert">
@@ -37,6 +39,12 @@
                         </div>
                     }
                 </EditForm>
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @errorMessage
+                    </div>
+                }
                 <div class="d-flex justify-content-between mt-4">
                     <a href="#" class="btn-link text-decoration-none">Olvidaste tu contraseña </a>
                     <a href="#" class="btn-link text-decoration-none">Crear contraseña</a>
@@ -61,38 +69,50 @@
         public string ErrorMessage { get; set; }
     }
 
+    private string errorMessage = string.Empty;
     private LoginFormModel loginForm = new LoginFormModel();
     private JwtSecurityToken jwtToken = null;
 
     private async Task HandleValidSubmit()
     {
-        var loginRequest = new { Email = loginForm.Email, Password = loginForm.Password };
+        var loginRequest = new 
+        { 
+            Email = loginForm.Email, 
+            Password = loginForm.Password 
+        };
         var data = new StringContent(JsonSerializer.Serialize(loginRequest), Encoding.UTF8, "application/json");
 
         var response = await Http.PostAsync("/auth/login", data);
 
-        if (response.IsSuccessStatusCode)
-        {
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseBody = JsonSerializer.Deserialize<Dictionary<string, string>>(responseContent);
-
-            if (responseBody.TryGetValue("AccessToken", out string token))
-            {
-                // jwtToken es una variable global donde almacenaremos el token
-                jwtToken = new JwtSecurityToken(token);
-
-                // Aquí puedes manejar la navegación de acuerdo a si la autenticación fue exitosa
-                // NavigationManager.NavigateTo("/users");
-            }
-            else
-            {
-                // Mostrar algún error en caso de no poder obtener el token
-            }
-        }
-        else
+        if (!response.IsSuccessStatusCode)
         {
             // Mostrar un error al usuario en caso de que las credenciales sean incorrectas, etc.
+            errorMessage = "Contraseña Incorrecta. Por favor, inténtalo de nuevo.";
+            return;
         }
-    }
 
+        var responseContent = await response.Content.ReadAsStringAsync();
+        var responseBody = JsonSerializer.Deserialize<Dictionary<string, string>>(responseContent);
+
+        if (!responseBody.TryGetValue("accessToken", out string token))
+        {
+            // Mostrar algún error en caso de no poder obtener el token
+            errorMessage = "Hubo un problema iniciando sesión. Por favor, inténtalo de nuevo.";
+            return;
+        }
+
+        // jwtToken es una variable global donde almacenaremos el token
+        jwtToken = new JwtSecurityToken(token);
+
+        // Guardamos el token en el local storage
+        await localStorage.SetItemAsync("authToken", token);
+    
+        // Almacenar la información del usuario en LocalStorage
+        var user = new { Email = loginForm.Email, Name = "User Name" };
+        var userJson = JsonSerializer.Serialize(user);
+        await localStorage.SetItemAsync("user", userJson);
+
+        // Aquí puedes manejar la navegación de acuerdo a si la autenticación fue exitosa
+        NavigationManager.NavigateTo("/users");
+    }
 }
