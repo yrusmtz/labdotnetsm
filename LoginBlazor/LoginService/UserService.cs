@@ -3,27 +3,27 @@ using LoginShared;
 namespace LoginService;
 
 // TODO: Posteriormente pasara a usar repositorio y aceptar injeccion de dependencias
-public class UserService(List<UserDto> users)
+public class UserService(List<User> users)
 {
-    private readonly List<UserDto> _users = users;
+    private readonly List<User> _users = users;
 
-    public UserDto CreateUser(UserDto newUser)
+    public User CreateUser(User newUser)
     {
         _users.Add(newUser);
         return newUser;
     }
 
-    public List<UserDto> GetAllUsers()
+    public List<User> GetAllUsers()
     {
         return _users;
     }
 
-    public UserDto? GetUser(string userId)
+    public User? GetUser(string userId)
     {
         return _users.Find(u => u.Email == userId);
     }
 
-    public UserDto? UpdateUserPassword(string userId, UserDto updatedUser)
+    public User? UpdateUserPassword(string userId, User updatedUser)
     {
         for (int i = 0; i < _users.Count; i++)
         {

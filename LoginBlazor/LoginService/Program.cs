@@ -12,7 +12,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-List<UserDto> userDb = new List<UserDto>();
+List<User> userDb = new List<User>();
 
 // Add services to the container.
 builder.Services.AddSingleton<UserService>(new UserService(userDb));
@@ -34,23 +34,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme,
-        new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
-            Description = "Insert the token with the 'Bearer ' prefix",
-        });
+            new OpenApiSecurityScheme
+            { Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
+              Description = "Insert the token with the 'Bearer ' prefix", });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
             {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                        { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
-                },
-                new string[] { }
-            }
-        }
+            { new OpenApiSecurityScheme
+              { Reference = new OpenApiReference
+                { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme } },
+              new string[] { } } }
     );
 });
 
@@ -82,11 +75,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
+    var roleUser = new Role("Usuario", "Usuario normal");
+    var roleAdmin = new Role("Administrador", "Usuario administrador");
+
     // Poblar la base de datos con algunos usuarios
-    userService.CreateUser(new UserDto(Email: "user1@example.com", Password: "password1"));
-    userService.CreateUser(new UserDto(Email: "user2@example.com", Password: "password2"));
-    userService.CreateUser(new UserDto(Email: "user3@example.com", Password: "password3"));
-    userService.CreateUser(new UserDto(Email: "sury@example.com", Password: "Martinez"));
+    userService.CreateUser(new User("User 1", "user1@example.com", "password1", "Title 1",
+            new List<Role> { roleUser }));
+    userService.CreateUser(
+            new User("User 2", "user2@example.com", "password2", "Title 2", new List<Role> { roleAdmin }));
+    userService.CreateUser(new User("User 3", "user3@example.com", "password3", "Title 3",
+            new List<Role> { roleUser, roleAdmin }));
+    userService.CreateUser(new User("Sury", "sury@example.com", "Martinez", "Title 4", new List<Role> { roleUser }));
 }
 
 app.UseHttpsRedirection();
@@ -133,7 +132,7 @@ app.MapPost("/auth/login", (LoginRequest request) =>
     .WithOpenApi();
 
 
-app.MapPost("/users", (UserDto newUser) =>
+app.MapPost("/users", (User newUser) =>
 {
     var createdUser = userService.CreateUser(newUser);
     return Results.Created($"/users/{createdUser.Email}", createdUser);
@@ -152,7 +151,7 @@ app.MapGet("/users/{userId}", (string userId) =>
     return Results.Ok(user);
 });
 
-app.MapPut("/users/{userId}", (string userId, UserDto updatedUser) =>
+app.MapPut("/users/{userId}", (string userId, User updatedUser) =>
 {
     var user = userService.UpdateUserPassword(userId, updatedUser);
     if (user == null)
