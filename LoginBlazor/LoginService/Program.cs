@@ -13,9 +13,13 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 List<User> userDb = new List<User>();
+//lista de roles
+List<Role> roleDb = new List<Role>();
 
 // Add services to the container.
 builder.Services.AddSingleton<UserService>(new UserService(userDb));
+builder.Services.AddSingleton<RoleService>(new RoleService(roleDb));
+
 // Add CORS middleware to allow requests from all origins
 builder.Services.AddCors(options =>
 {
@@ -34,16 +38,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme,
-            new OpenApiSecurityScheme
-            { Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
-              Description = "Insert the token with the 'Bearer ' prefix", });
+        new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
+            Description = "Insert the token with the 'Bearer ' prefix",
+        });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
             {
-            { new OpenApiSecurityScheme
-              { Reference = new OpenApiReference
-                { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme } },
-              new string[] { } } }
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                        { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
+                },
+                new string[] { }
+            }
+        }
     );
 });
 
@@ -67,6 +78,8 @@ var app = builder.Build();
 
 
 var userService = app.Services.GetRequiredService<UserService>();
+var roleService = app.Services.GetRequiredService<RoleService>();
+
 // Use CORS with named policy
 app.UseCors("OpenCORS");
 // Configure the HTTP request pipeline.
@@ -80,11 +93,11 @@ if (app.Environment.IsDevelopment())
 
     // Poblar la base de datos con algunos usuarios
     userService.CreateUser(new User("User 1", "user1@example.com", "password1", "Title 1",
-            new List<Role> { roleUser }));
+        new List<Role> { roleUser }));
     userService.CreateUser(
-            new User("User 2", "user2@example.com", "password2", "Title 2", new List<Role> { roleAdmin }));
+        new User("User 2", "user2@example.com", "password2", "Title 2", new List<Role> { roleAdmin }));
     userService.CreateUser(new User("User 3", "user3@example.com", "password3", "Title 3",
-            new List<Role> { roleUser, roleAdmin }));
+        new List<Role> { roleUser, roleAdmin }));
     userService.CreateUser(new User("Sury", "sury@example.com", "Martinez", "Title 4", new List<Role> { roleUser }));
 }
 
@@ -174,5 +187,58 @@ app.MapDelete("/users/{userId}", (string userId) =>
     return Results.Ok(user);
 }).RequireAuthorization().WithName("DeleteUser").WithOpenApi();
 
+//endpoints para roles
+app.MapPost("/roles", (Role newRole) =>
+{
+    var createdRole = roleService.CreateRole(newRole);
+    return Results.Created($"/roles/{createdRole.Name}", createdRole);
+}).WithName("CreateRole").WithOpenApi();
 
+app.MapGet("/roles", () => roleService.GetAllRoles()).WithName("GetAllRoles").WithOpenApi();
+
+app.MapGet("/roles/{roleName}", (string roleName) =>
+{
+    var role = roleService.GetRole(roleName);
+    if (role == null)
+    {
+        return Results.NotFound($"Role with name {roleName} not found.");
+    }
+
+    return Results.Ok(role);
+}).WithName("GetRole").WithOpenApi();
+
+app.MapPut("/roles/{roleName}", (string roleName, Role updatedRole) =>
+{
+    var role = roleService.UpdateRole(roleName, updatedRole);
+    if (role == null)
+    {
+        return Results.NotFound($"Role with name {roleName} not found.");
+    }
+
+    return Results.Ok(role);
+}).WithName("UpdateRole").WithOpenApi();
+
+
+//manejo de roles de usuario
+app.MapPost("/users/{userId}/roles", (string userId, Role newRole) =>
+{
+    var addedRole = userService.AddRoleToUser(userId, newRole);
+    if (addedRole == null)
+    {
+        return Results.BadRequest($"Cannot add role to user {userId}.");
+    }
+
+    return Results.Created($"/users/{userId}/roles/{addedRole.Name}", addedRole);
+}).WithName("AddRoleToUser").WithOpenApi();
+
+app.MapDelete("/users/{userId}/roles/{roleName}", (string userId, string roleName) =>
+{
+    var removedRole = userService.RemoveRoleFromUser(userId, roleName);
+    if (removedRole == null)
+    {
+        return Results.NotFound($"Cannot remove role {roleName} from user {userId}.");
+    }
+
+    return Results.Ok(removedRole);
+}).WithName("RemoveRoleFromUser").WithOpenApi();
 app.Run();
