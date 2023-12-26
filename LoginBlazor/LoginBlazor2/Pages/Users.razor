@@ -67,20 +67,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // users = await Http.GetFromJsonAsync<List<User>>("api/Users");
-
-        await Task.Delay(2000); // Espera 2 segundos
-
-        Role userRole = new Role("User", "Usuario Normal");
-        Role adminRole = new Role("Admin", "Administrador");
-        Role superAdminRole = new Role("SuperAdmin", "Super Administrador");
-
-        users = new List<User>
-        { new User("Surynam", "suryname@example.com", "Title",
-                  new List<Role> { userRole, adminRole }),
-          new User("Guyana Holandesa", "guyanaholandesa@example.com", "Title2",
-                  new List<Role> { userRole }),
-          new User("Guyana Francesa", "guyanahrancesa@example.com", "Title2",
-                  new List<Role> { userRole, superAdminRole }), };
+        users= await GetUsers();
+        
     }
+
+    private async Task<List<User>> GetUsers()
+    {
+        users = await Http.GetFromJsonAsync<List<User>>("users");
+        Console.WriteLine(users);
+        return users;
+        
+    }
+
 }

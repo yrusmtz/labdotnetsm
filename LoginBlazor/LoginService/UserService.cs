@@ -38,7 +38,7 @@ public class UserService(List<User> users)
     }
 
     //delete user
-    public UserDto? DeleteUser(string userId)
+    public User? DeleteUser(string userId)
     {
         var user = _users.Find(u => u.Email == userId);
         if (user != null)
