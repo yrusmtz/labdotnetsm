@@ -19,7 +19,7 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-      <Content Include="wwwroot\assets\css\.DS_Store" />
+      <Content Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,12 +44,10 @@
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\5.png" />
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\6.png" />
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\7.png" />
-      <_ContentIncludedByDefault Remove="wwwroot\css\app.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\css\app.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\css\bootstrap\bootstrap.min.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\css\bootstrap\bootstrap.min.css.map" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\css\bootstrap\" />
     </ItemGroup>
 
 </Project>
