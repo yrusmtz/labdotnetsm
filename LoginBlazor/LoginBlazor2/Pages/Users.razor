@@ -2,6 +2,7 @@
 @using LoginShared
 @inject HttpClient Http
 @using LoginBlazor2.Services
+@inject NavigationManager NavigationManager
 @inject UserService UserService
 
 
@@ -25,7 +26,7 @@
             </div>
             <div class="flex-grow-1 d-flex flex-wrap justify-content-end align-items-center gap-3">
 
-                <button type="button" class="btn btn-secondary btn-lg hstack gap-2">
+                <button type="button" class="btn btn-secondary btn-lg hstack gap-2" @onclick="NavigateToUserForm">
                     <i class="demo-psi-add fs-4"></i>
                     <span class="vr"></span>
                     Add new
@@ -46,7 +47,13 @@
 <div class="content__boxed">
     <div class="content__wrap">
         <div class="row mt-3">
-            @if (users != null)
+            @if (users == null)
+            {
+                <div class="col-12">
+                    <p>Cargando...</p>
+                </div>
+            }
+            else
             {
                 @foreach (var user in users)
                 {
@@ -57,7 +64,11 @@
                                 <!-- Profile picture and short information -->
                                 <div class="text-center position-relative">
                                     <div class="pb-3">
-                                        <img class="img-lg rounded-circle" src="./assets/img/profile-photos/1.png" alt="Profile Picture" loading="lazy">
+                                        <img class="img-md rounded-circle"
+                                             src="assets/img/profile-photos/1.png"
+                                             alt="Profile Picture"
+                                             loading="lazy"
+                                             style="max-width: 100%; max-height: 100%;">
                                     </div>
                                     <a href="#" class="h5 stretched-link btn-link">@user.Name</a>
                                     <p class="text-muted">@user.Title</p>
@@ -75,11 +86,17 @@
 </div>
 
 @code {
-    private List<User>? users;
+
+    private List<User> users;
 
     protected override async Task OnInitializedAsync()
     {
         users = await UserService.GetUsers();
+    }
+
+    private void NavigateToUserForm()
+    {
+        NavigationManager.NavigateTo("/UserForm");
     }
 
 }

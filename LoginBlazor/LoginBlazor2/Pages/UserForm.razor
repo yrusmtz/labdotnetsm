@@ -1,0 +1,50 @@
+@page "/UserForm"
+@using LoginBlazor2.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@using LoginShared
+
+<h3>UserForm</h3>
+
+<EditForm Model="@newUser" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" @bind-Value="newUser.Name" class="form-control"/>
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" @bind-Value="newUser.Email" class="form-control"/>
+    </div>
+
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <InputText id="title" @bind-Value="newUser.Title" class="form-control"/>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    private UserFormModel newUser = new UserFormModel();
+
+    public class UserFormModel
+    {
+        public string Name { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Title { get; set; } = "";
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var user = new User(newUser.Name, newUser.Email, "defaultPassword", newUser.Title, new List<Role>());
+        var createdUser = await UserService.CreateUser(user);
+        
+        // navigate to the user list page.
+        NavigationManager.NavigateTo("/Users");
+        
+    }
+}
