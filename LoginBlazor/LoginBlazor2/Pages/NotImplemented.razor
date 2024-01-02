@@ -1,0 +1,56 @@
+@page "/NotImplemented"
+@inject NavigationManager NavigationManager
+
+<div class="content__boxed">
+    <div class="content__wrap">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="card">
+                    <div class="card-body pt-2">
+                        <h3 class="card-title">Not Implemented</h3>
+                        <p>This page is not implemented yet. Please check back later.</p>
+                        <p id="countdown">You will be redirected to the home page in <span id="seconds">30</span> seconds.</p>
+                        <div>
+                            <p>Seconds to redirect: @seconds</p>
+                        </div>
+                        <div>
+                            <p>Go to home</p>
+                            <button class="btn btn-secondary btn-lg hstack gap-2" @onclick="GoToHome">Go to home</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private int seconds = 30;
+
+    protected override void OnInitialized()
+    {
+        var timer = new System.Timers.Timer(1000);
+        timer.Elapsed += Timer_Elapsed;
+        timer.Start();
+    }
+
+    private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        seconds--;
+        if (seconds == 0)
+        {
+            GoToHome();
+        }
+        else
+        {
+            InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    private void GoToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+}

@@ -1,33 +1,104 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">LoginBlazor2</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿<!-- MAIN NAVIGATION -->
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<nav id="mainnav-container" class="mainnav">
+    <div class="mainnav__inner">
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-       
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="users">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Users
-                    </NavLink>
+        <!-- Navigation menu -->
+        <div class="mainnav__top-content scrollable-content pb-5">
+
+            <!-- Profile Widget -->
+            <LogedUserNavBar/>
+            <!-- End - Profile widget -->
+
+            <div class="mainnav__categoriy py-3">
+                <h6 class="mainnav__caption mt-0 px-3 fw-bold">Link Items</h6>
+                <ul class="mainnav__menu nav flex-column">
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link mininav-toggle collapsed">
+                            <i class="pli-bar-chart fs-5 me-2"></i>
+                            <span class="nav-label mininav-content ms-1">Regular</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link mininav-toggle collapsed active">
+                            <i class="pli-home fs-5 me-2"></i>
+                            <span class="nav-label mininav-content ms-1">Active state</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link mininav-toggle collapsed">
+                            <i class="pli-brush fs-5 me-2"></i>
+                            <span class="nav-label mininav-content ms-1 fw-bold">Bolder link</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <!-- Widget -->
+            <div class="mainnav__profile">
+
+                <!-- Widget buttton form small navigation -->
+                <div class="mininav-toggle text-center py-2 d-mn-min">
+                    <i class="pli-monitor-2"></i>
                 </div>
-        
-    </nav>
-</div>
+
+                <div class="d-mn-max mt-5"></div>
+
+                <!-- Widget content -->
+                <div class="mininav-content collapse d-mn-max">
+                    <h6 class="mainnav__caption px-3 fw-bold">Server Status</h6>
+                    <ul class="list-group list-group-borderless">
+                        <li class="list-group-item text-reset">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <p class="mb-2 me-auto">CPU Usage</p>
+                                <span class="badge bg-info rounded">35%</span>
+                            </div>
+                            <div class="progress progress-md">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: 35%" aria-label="CPU Progress" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </li>
+                        <li class="list-group-item text-reset">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <p class="mb-2 me-auto">Bandwidth</p>
+                                <span class="badge bg-warning rounded">73%</span>
+                            </div>
+                            <div class="progress progress-md">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 73%" aria-label="Bandwidth Progress" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="d-grid px-3 mt-3">
+                        <a href="#" class="btn btn-sm btn-success">View Details</a>
+                    </div>
+                </div>
+            </div>
+            <!-- End - Profile widget -->
+
+        </div>
+        <!-- End - Navigation menu -->
+
+        <!-- Bottom navigation menu -->
+        <div class="mainnav__bottom-content border-top pb-2">
+            <ul id="mainnav" class="mainnav__menu nav flex-column">
+                <li class="nav-item has-sub">
+                    <a href="#" class="nav-link mininav-toggle collapsed" aria-expanded="false">
+                        <i class="pli-unlock fs-5 me-2"></i>
+                        <span class="nav-label ms-1">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- End - Bottom navigation menu -->
+
+    </div>
+</nav>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- END - MAIN NAVIGATION -->
+
 
 @code {
     private bool collapseNavMenu = true;

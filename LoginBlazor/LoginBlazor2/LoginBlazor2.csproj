@@ -44,6 +44,34 @@
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\5.png" />
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\6.png" />
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\profile-photos\Profile-photos\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-icons.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-icons.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-icons.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-icons.min.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-settings.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-settings.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-settings.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\demo-settings.min.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\css\demo-purpose\font\nifty-demo-icons.woff2" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\blog-add-edit-post.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\chart.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\clipboard.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\dashboard-1.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\dashboard-2.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\dashboard-3.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\date-time-picker.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\demo-icons.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\email.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\file-uploads.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\form-validation.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\form-wizard.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\forms-tags.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\fullcalendar.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\gridjs.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\sparklines.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\tabulator.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\text-editor.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\pages\tooltips-popovers.js" />
     </ItemGroup>
 
     <ItemGroup>
