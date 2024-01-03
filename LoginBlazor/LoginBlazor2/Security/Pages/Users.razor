@@ -1,4 +1,4 @@
-﻿@page "/Users"
+﻿@page "/Security/Users"
 @using LoginShared
 @inject HttpClient Http
 @using LoginBlazor2.Services
@@ -70,10 +70,15 @@
                                              loading="lazy"
                                              style="max-width: 100%; max-height: 100%;">
                                     </div>
-                                    <a href="#" class="h5 stretched-link btn-link">@user.Name</a>
+                                    <a href="/security/detailsuser/@user.Id" class="h5">@user.FullName</a>
                                     <p class="text-muted">@user.Title</p>
+                                    <p>@user.Department</p>
+
+                                    <button class="btn btn-primary btn-sm btn-block"
+                                            @onclick="() => NavigateToUserDetails(user.Id)">
+                                        Detalles
+                                    </button>
                                 </div>
-                                <p class="text-center">@user.Email</p>
                                 <!-- END : Profile picture and short information -->
 
                             </div>
@@ -96,7 +101,12 @@
 
     private void NavigateToUserForm()
     {
-        NavigationManager.NavigateTo("/UserForm");
+        NavigationManager.NavigateTo("/Security/UserForm");
+    }
+
+    private void NavigateToUserDetails(int id)
+    {
+        NavigationManager.NavigateTo("/Security/DetailsUser/" + id);
     }
 
 }

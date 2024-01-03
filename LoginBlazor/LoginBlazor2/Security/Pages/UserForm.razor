@@ -1,4 +1,4 @@
-@page "/UserForm"
+@page "/Security/UserForm"
 @using LoginBlazor2.Services
 @inject UserService UserService
 @inject NavigationManager NavigationManager
@@ -11,8 +11,18 @@
     <ValidationSummary/>
 
     <div class="form-group">
-        <label for="name">Name:</label>
+        <label for="name">Nombre:</label>
         <InputText id="name" @bind-Value="newUser.Name" class="form-control"/>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Apellido:</label>
+        <InputText id="name" @bind-Value="newUser.LastName" class="form-control"/>
+    </div>
+
+    <div class="form-group">
+        <label for="department">Departamento:</label>
+        <InputText id="department" @bind-Value="newUser.Department" class="form-control"/>
     </div>
 
     <div class="form-group">
@@ -21,7 +31,7 @@
     </div>
 
     <div class="form-group">
-        <label for="title">Title:</label>
+        <label for="title">Titulo:</label>
         <InputText id="title" @bind-Value="newUser.Title" class="form-control"/>
     </div>
 
@@ -29,22 +39,32 @@
 </EditForm>
 
 @code {
-    private UserFormModel newUser = new UserFormModel();
+    private UserFormModel newUser = new();
 
     public class UserFormModel
     {
         public string Name { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string Department { get; set; } = "";
         public string Email { get; set; } = "";
         public string Title { get; set; } = "";
     }
 
     private async Task HandleValidSubmit()
     {
-        var user = new User(newUser.Name, newUser.Email, "defaultPassword", newUser.Title, new List<Role>());
+        var user = new User(
+                -1,
+                newUser.Name,
+                newUser.LastName,
+                newUser.Department,
+                newUser.Email,
+                "defaultPassword",
+                newUser.Title,
+                new List<Role>());
         var createdUser = await UserService.CreateUser(user);
-        
+
         // navigate to the user list page.
-        NavigationManager.NavigateTo("/Users");
-        
+        NavigationManager.NavigateTo("/Security/Users");
+
     }
 }

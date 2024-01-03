@@ -14,6 +14,7 @@ namespace LoginService
 
         public User CreateUser(User newUser)
         {
+            newUser = newUser with { Id = _users.Count + 1 };
             _users.Add(newUser);
             return newUser;
         }
@@ -23,9 +24,13 @@ namespace LoginService
             return _users;
         }
 
-        public User? GetUser(string userId)
+        public User? GetUserById(int userId)
         {
-            return _users.Find(u => u.Email == userId);
+            return _users.Find(u => u.Id == userId);
+        }        
+        public User? GetUserByEmail(string email)
+        {
+            return _users.Find(u => u.Email == email);
         }
 
         public User? UpdateUserPassword(string userId, User updatedUser)

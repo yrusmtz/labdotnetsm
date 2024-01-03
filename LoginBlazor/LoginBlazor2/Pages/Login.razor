@@ -70,7 +70,7 @@
     }
 
     private string errorMessage = string.Empty;
-    private LoginFormModel loginForm = new LoginFormModel();
+    private LoginFormModel loginForm = new();
     private JwtSecurityToken jwtToken = null;
 
     private async Task HandleValidSubmit()
@@ -102,7 +102,7 @@
         }
 
         // jwtToken es una variable global donde almacenaremos el token
-        jwtToken = new JwtSecurityToken(token);
+        jwtToken = new(token);
 
         // Guardamos el token en el local storage
         await localStorage.SetItemAsync("authToken", token);

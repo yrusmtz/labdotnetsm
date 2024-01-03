@@ -75,6 +75,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Security\Components\" />
       <Folder Include="wwwroot\css\bootstrap\" />
     </ItemGroup>
 
