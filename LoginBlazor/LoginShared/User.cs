@@ -7,7 +7,7 @@ public record User(
         string Department,
         string Email,
         string Password,
-        string Title,
+        string Puesto,
         List<Role> Roles
 )
 {

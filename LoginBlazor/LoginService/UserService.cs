@@ -89,5 +89,20 @@ namespace LoginService
 
             return null;
         }
+        
+        //update user
+        public User? UpdateUser(int userId, User updatedUser)
+        {
+            for (int i = 0; i < _users.Count; i++)
+            {
+                if (_users[i].Id == userId)
+                {
+                    _users[i] = updatedUser;
+                    return _users[i];
+                }
+            }
+
+            return null;
+        }
     }
 }

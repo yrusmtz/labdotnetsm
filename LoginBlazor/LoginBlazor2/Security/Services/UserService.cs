@@ -27,10 +27,17 @@ public class UserService
         Console.WriteLine(users);
         return users;
     }
-    
+
     public async Task<User?> GetUserById(string userId)
     {
         var user = await httpClient.GetFromJsonAsync<User>($"http://localhost:5001/users/{userId}");
         return user;
+    }
+
+    public async Task<User> UpdateUser(User user)
+    {
+        var response = await httpClient.PutAsJsonAsync($"http://localhost:5001/users/{user.Id}", user);
+        var updateUser = await response.Content.ReadFromJsonAsync<User>();
+        return updateUser;
     }
 }

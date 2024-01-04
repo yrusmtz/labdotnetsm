@@ -1,0 +1,138 @@
+﻿@page "/security/edituser/{Id}"
+@inject UserService UserService
+@using LoginShared
+@using LoginBlazor2.Services
+@inject NavigationManager NavigationManager
+
+@if (user == null)
+{
+    <p>
+        <em>Cargando...</em>
+    </p>
+}
+else
+{
+    <EditForm Model="editUserFormModel" OnValidSubmit="HandleValidSubmit">
+        <div class="content__boxed">
+            <div class="content__wrap">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <div class="card">
+                            <div class="card-body pt-2">
+                                <h3 class="card-title">Edit @user.FullName</h3>
+                                <hr/>
+                                <DataAnnotationsValidator/>
+                                <ValidationSummary/>
+                                <div>
+                                    <label for="Name">Name</label>
+                                    <InputText class="form-control" id="Name" @bind-Value="editUserFormModel.Name"/>
+                                </div>
+
+                                <div>
+                                    <label for="LastName">Last Name</label>
+                                    <InputText class="form-control" id="LastName" @bind-Value="editUserFormModel.LastName"/>
+                                </div>
+
+                                <div>
+                                    <label for="Email">Email</label>
+                                    <InputText class="form-control" id="Email" @bind-Value="editUserFormModel.Email"/>
+                                </div>
+
+                                <div>
+                                    <label for="Puesto">Puesto</label>
+                                    <InputText class="form-control" id="Puesto" @bind-Value="editUserFormModel.Puesto"/>
+                                </div>
+
+                                <div>
+                                    <label for="Department">Department</label>
+                                    <InputText class="form-control" id="Department" @bind-Value="editUserFormModel.Department"/>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private UserFormModel editUserFormModel = new();
+
+    public class UserFormModel
+
+    {
+        public int Id { get; set; } = 0;
+        public string Name { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string Department { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Puesto { get; set; } = "";
+    }
+
+    [Parameter] public string Id { get; set; }
+
+    private User? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserService.GetUserById(Id);
+
+        if (user is null)
+        {
+            NavigationManager.NavigateTo("/security/users");
+        }
+
+        if (user != null) UpdateEditUserFormModel(user);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+      
+        
+        var userupdate = UpdateUserFromEditUserFormModel(editUserFormModel, user);
+        // update user in database
+        Console.WriteLine("User updated");
+        Console.WriteLine(userupdate);
+        var updatedUser = await UserService.UpdateUser(userupdate);
+        // update editUserFormModel
+        Console.WriteLine("User updated");
+        Console.WriteLine(updatedUser);
+        UpdateEditUserFormModel(updatedUser);
+        NavigationManager.NavigateTo("/security/users");
+    }
+
+    //crea un metodo privado que recibe un User y actualiza el editUserFormModel
+
+    private void UpdateEditUserFormModel(User user)
+    {
+        editUserFormModel = new UserFormModel
+        {
+            Id = user.Id,
+            Name = user.Name,
+            LastName = user.LastName,
+            Department = user.Department,
+            Email = user.Email,
+            Puesto = user.Puesto
+        };
+    }
+
+    //crear una funcion que reciba como parametro un UserFormModel y un user y devuelva un User actualizado con los datos del UserFormModel
+
+    private User UpdateUserFromEditUserFormModel(UserFormModel editUserFormModel, User user)
+    {
+         return new (
+            this.user.Id, // New ID
+            this.editUserFormModel.Name,
+            this.editUserFormModel.LastName, 
+            this.editUserFormModel.Department,
+            this.editUserFormModel.Email,
+            this.user.Password,
+             this.editUserFormModel.Puesto,
+            this.user.Roles
+         );
+    }
+
+
+}

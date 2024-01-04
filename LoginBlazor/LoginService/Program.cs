@@ -145,9 +145,9 @@ app.MapGet("/users/{userId}", (int userId) =>
     return Results.Ok(user);
 });
 
-app.MapPut("/users/{userId}", (string userId, User updatedUser) =>
+app.MapPut("/users/{userId}", (int userId, User updatedUser) =>
 {
-    var user = userService.UpdateUserPassword(userId, updatedUser);
+    var user = userService.UpdateUser(userId, updatedUser);
     if (user == null)
     {
         return Results.NotFound($"User with ID {userId} not found.");
@@ -198,6 +198,7 @@ app.MapPut("/roles/{roleName}", (string roleName, Role updatedRole) =>
 
     return Results.Ok(role);
 }).WithName("UpdateRole").WithOpenApi();
+
 
 
 //manejo de roles de usuario

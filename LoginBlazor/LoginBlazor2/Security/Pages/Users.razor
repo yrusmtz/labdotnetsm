@@ -60,6 +60,38 @@
                     <div class="col-sm-6 col-md-4 col-xl-3 mb-3">
                         <div class="card">
                             <div class="card-body pt-2">
+                                <div class="d-flex justify-content-end gap-1">
+                                    @* <div class="dropdown"> *@
+                                    @*     <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none" *@
+                                    @*             data-bs-toggle="dropdown" aria-expanded="false"> *@
+                                    @*         <i class="pli-dot-horizontal fs-4"></i> *@
+                                    @*         <span class="visually-hidden">Toggle Dropdown</span> *@
+                                    @*     </button> *@
+                                    @* *@
+                                    @*     <ul class="dropdown-menu dropdown-menu-end"> *@
+                                    @*         <li> *@
+                                    @*             <a class="dropdown-item" @onclick="() => NavigateToUserDetails(user.Id)"> *@
+                                    @*                 <i class="pli-bulleted-list fs-5 me-2"></i> Detalles *@
+                                    @*             </a> *@
+                                    @*         </li> *@
+                                    @*         <li> *@
+                                    @*             <a href="#" class="dropdown-item"> *@
+                                    @*                 <i class="pli-pen-5 fs-5 me-2"></i> Edit *@
+                                    @*             </a> *@
+                                    @*         </li> *@
+                                    @*     </ul> *@
+                                    @* </div> *@
+                                    <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
+                                            @onclick="() => NavigateToUserDetails(user.Id)"
+                                            title="Detalles">
+                                        <i class="pli-bulleted-list fs-5 me-2"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
+                                            @onclick="() => NavigateToUserEdit(user.Id)"
+                                            title="Editar">
+                                        <i class="pli-pen-5 fs-5 me-2"></i>
+                                    </button>
+                                </div>
 
                                 <!-- Profile picture and short information -->
                                 <div class="text-center position-relative">
@@ -71,15 +103,11 @@
                                              style="max-width: 100%; max-height: 100%;">
                                     </div>
                                     <a href="/security/detailsuser/@user.Id" class="h5">@user.FullName</a>
-                                    <p class="text-muted">@user.Title</p>
+                                    <p class="text-muted">@user.Puesto</p>
                                     <p>@user.Department</p>
 
-                                    <button class="btn btn-primary btn-sm btn-block"
-                                            @onclick="() => NavigateToUserDetails(user.Id)">
-                                        Detalles
-                                    </button>
+
                                 </div>
-                                <!-- END : Profile picture and short information -->
 
                             </div>
                         </div>
@@ -107,6 +135,11 @@
     private void NavigateToUserDetails(int id)
     {
         NavigationManager.NavigateTo("/Security/DetailsUser/" + id);
+    }
+
+    private void NavigateToUserEdit(int id)
+    {
+        NavigationManager.NavigateTo("/Security/EditUser/" + id);
     }
 
 }
