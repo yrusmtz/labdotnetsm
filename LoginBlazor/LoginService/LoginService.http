@@ -1,6 +1,108 @@
 @LoginService_HostAddress = http://localhost:5001
 
-GET {{LoginService_HostAddress}}/weatherforecast/
-Accept: application/json
+### Create User
+POST http://localhost:5001/users
+Content-Type: application/json
+Authorization: Bearer {accessToken}
+
+{
+    "Email": "newuser@example.com",
+    "Password": "password"
+}
+
+### Login
+POST http://localhost:5001/auth/login
+Content-Type: application/json
+
+{
+    "Email": "test@example.com",
+    "Password": "password"
+}
+
+###
+
+
+
+###
+
+### Get All Users
+GET http://localhost:5001/users
+Authorization: Bearer {accessToken}
+
+###
+
+### Get User by ID
+GET http://localhost:5001/users/1
+Authorization: Bearer {accessToken}
+
+###
+
+### Update User Password
+PUT http://localhost:5001/users/1
+Content-Type: application/json
+Authorization: Bearer {accessToken}
+
+{
+    "Email": "newuser@example.com",
+    "Password": "newpassword"
+}
+
+###
+
+### Delete User
+DELETE http://localhost:5001/users/1
+Authorization: Bearer {accessToken}
+
+###
+
+### Create Role
+POST http://localhost:5001/roles
+Content-Type: application/json
+Authorization: Bearer {accessToken}
+
+{
+    "Name": "Admin"
+}
+
+###
+
+### Get All Roles
+GET http://localhost:5001/roles
+Authorization: Bearer {accessToken}
+
+###
+
+### Get Role by ID
+GET http://localhost:5001/roles/1
+Authorization: Bearer {accessToken}
+
+###
+
+### Update Role
+PUT http://localhost:5001/roles/1
+Content-Type: application/json
+Authorization: Bearer {accessToken}
+
+{
+    "Name": "User"
+}
+
+###
+
+### Add Role to User
+POST http://localhost:5001/users/1/roles
+Content-Type: application/json
+Authorization: Bearer {accessToken}
+
+{
+    "Id": 1,
+    "Name": "Admin"
+}
+
+###
+
+### Remove Role from User
+DELETE http://localhost:5001/users/1/roles/1
+Authorization: Bearer {accessToken}
 
 ###

@@ -1,79 +1,69 @@
 using LoginShared;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoginService
 {
-    // TODO: Posteriormente pasara a usar repositorio y aceptar injeccion de dependencias
-    public class UserService
+    public class UserService(AppDbContext context)
     {
-        private readonly List<User> _users;
 
-        public UserService(List<User> users)
+        public async Task<User> CreateUserAsync(User newUser)
         {
-            _users = users;
-        }
-
-        public User CreateUser(User newUser)
-        {
-            newUser = newUser with { Id = _users.Count + 1 };
-            _users.Add(newUser);
+            context.Users.Add(newUser);
+            await context.SaveChangesAsync();
             return newUser;
         }
 
-        public List<User> GetAllUsers()
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            return _users;
+            return await context.Users.ToListAsync();
         }
 
-        public User? GetUserById(int userId)
+        public async Task<User> GetUserByEmailAsync(string email)
         {
-            return _users.Find(u => u.Id == userId);
-        }        
-        public User? GetUserByEmail(string email)
-        {
-            return _users.Find(u => u.Email == email);
+            return await context.Users.SingleAsync(u => u.Email == email);
         }
 
-        public User? UpdateUserPassword(string userId, User updatedUser)
+        public async Task<User> UpdateUserPasswordAsync(int userId, User updatedUser)
         {
-            for (int i = 0; i < _users.Count; i++)
+            await GetUserByIdIfExistAsync(userId);
+            context.Users.Update(updatedUser);
+            await context.SaveChangesAsync();
+            return updatedUser;
+        }
+
+        public async Task<Boolean> DeleteUserAsync(int userId)
+        {
+            var user = await GetUserByIdIfExistAsync(userId);
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<User> UpdateUserAsync(int userId, User updatedUser)
+        {
+            if (userId != updatedUser.Id)
             {
-                if (_users[i].Email == userId)
-                {
-                    _users[i] = updatedUser;
-                    return _users[i];
-                }
+                throw new ArgumentException($"User ID {userId} does not match user ID {updatedUser.Id}.");
             }
 
-            return null;
+
+            await GetUserByIdIfExistAsync(userId);
+
+            context.Users.Update(updatedUser);
+            await context.SaveChangesAsync();
+            return updatedUser;
         }
 
-        //delete user
-        public User? DeleteUser(string userId)
+        public async Task<User> GetUserByIdIfExistAsync(int userId)
         {
-            var user = _users.Find(u => u.Email == userId);
-            if (user != null)
+            try
             {
-                _users.Remove(user);
-                return user;
+                return await context.Users.SingleAsync(u => u.Id == userId);
             }
-
-            return null;
-        }
-
-        
-        //update user
-        public User? UpdateUser(int userId, User updatedUser)
-        {
-            for (int i = 0; i < _users.Count; i++)
+            catch (Exception e)
             {
-                if (_users[i].Id == userId)
-                {
-                    _users[i] = updatedUser;
-                    return _users[i];
-                }
+                throw new ArgumentException($"User with ID {userId} not found.");
             }
-
-            return null;
         }
     }
 }

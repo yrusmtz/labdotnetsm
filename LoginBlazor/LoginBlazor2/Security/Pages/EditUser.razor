@@ -25,13 +25,13 @@ else
                                 <ValidationSummary/>
                                 <div>
                                     <label for="Name">Name</label>
-                                    <InputText class="form-control" id="Name" 
+                                    <InputText class="form-control" id="Name"
                                                @bind-Value="editUserFormModel.Name"/>
                                 </div>
 
                                 <div>
                                     <label for="LastName">Last Name</label>
-                                    <InputText class="form-control" id="LastName" 
+                                    <InputText class="form-control" id="LastName"
                                                @bind-Value="editUserFormModel.LastName"/>
                                 </div>
 
@@ -91,8 +91,8 @@ else
 
     private async Task HandleValidSubmit()
     {
-      
-        
+
+
         var userupdate = UpdateUserFromEditUserFormModel(editUserFormModel, user);
         // update user in database
         Console.WriteLine("User updated");
@@ -110,30 +110,23 @@ else
     private void UpdateEditUserFormModel(User user)
     {
         editUserFormModel = new UserFormModel
-        {
-            Id = user.Id,
-            Name = user.Name,
-            LastName = user.LastName,
-            Department = user.Department,
-            Email = user.Email,
-            Puesto = user.Puesto
-        };
+        { Id = user.Id, Name = user.Name, LastName = user.LastName, Department = user.Department,
+          Email = user.Email, Puesto = user.Puesto };
     }
 
     //crear una funcion que reciba como parametro un UserFormModel y un user y devuelva un User actualizado con los datos del UserFormModel
 
     private User UpdateUserFromEditUserFormModel(UserFormModel editUserFormModel, User user)
     {
-         return new (
-            this.user.Id, // New ID
-            this.editUserFormModel.Name,
-            this.editUserFormModel.LastName, 
-            this.editUserFormModel.Department,
-            this.editUserFormModel.Email,
-            this.user.Password,
-             this.editUserFormModel.Puesto,
-            this.user.Roles
-         );
+        return new(
+                this.user.Id, // New ID
+                this.editUserFormModel.Name,
+                this.editUserFormModel.LastName,
+                this.editUserFormModel.Department,
+                this.editUserFormModel.Email,
+                this.user.Password,
+                this.editUserFormModel.Puesto
+        );
     }
 
 
