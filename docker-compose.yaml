@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+    mssql:
+        image: mcr.microsoft.com/mssql/server:2022-CU10-ubuntu-22.04
+        container_name: mssql
+        ports:
+        - "1433:1433"
+        environment:
+            SA_PASSWORD: "passwordForDevOnly!"
+            ACCEPT_EULA: "Y"
+        volumes:
+        - ./db-data:/var/opt/mssql/data
+    postgres:
+        image: postgres:16.0
+        container_name: postgres
+        ports:
+        - "5432:5432"
+        environment:
+            POSTGRES_PASSWORD: "passwordForDevOnly!"
+        volumes:
+        - ./postgres-data:/var/lib/postgresql/data
