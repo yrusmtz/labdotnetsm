@@ -1,0 +1,79 @@
+﻿@page "/Security/RolesForm"
+@using LoginBlazor2.Security.Services
+@inject RoleService RoleService
+@inject NavigationManager NavigationManager
+@using LoginShared
+
+
+<div id="root" class="root front-container">
+
+    <section id="content" class="content">
+        <div class="content__boxed w-100 min-vh-100 d-flex flex-column align-items-center justify-content-center">
+            <div class="content__wrap">
+
+                <div class="card shadow-lg">
+                    <div class="card-body">
+
+                        <div class="text-center">
+                            <h3 class="h3">RolesForm</h3>
+                        </div>
+
+                        <EditForm Model="@newRole" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator/>
+                            <ValidationSummary/>
+
+                            <div class="w-md-100% d-inline-flex row g-3 mb-4">
+                                <div class="col-sm-6">
+                                    <InputNumber class="form-control" placeholder="Code" @bind-Value="newRole.Code"/>
+4                                </div>
+
+                                <div class="col-12">
+                                    <InputText class="form-control" placeholder="Description" @bind-Value="newRole.Description"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <InputCheckbox @bind-Value="newRole.State"/>
+                                    <span>State</span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                            </div>
+                        </EditForm>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    private RoleFormModel newRole = new();
+
+    public class RoleFormModel
+    {
+        public int Code { get; set; }
+        public string Description { get; set; } = "";
+        public bool State { get; set; } = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var role = new Role(
+            //id
+            0,
+            newRole.Code,
+            newRole.Description,
+            newRole.State
+        );
+        var createdRole = await RoleService.CreateRole(role);
+
+        // navigate to the role list page.
+        NavigationManager.NavigateTo("/Security/Roles");
+    }
+
+
+}

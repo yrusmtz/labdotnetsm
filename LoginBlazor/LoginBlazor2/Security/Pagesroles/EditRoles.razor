@@ -1,0 +1,108 @@
+﻿@page "/security/editrole/{Id}"
+@inject RoleService RoleService
+@using LoginShared
+@using LoginBlazor2.Security.Services
+@inject NavigationManager NavigationManager
+
+@if (role == null)
+{
+    <p>
+        <em>Cargando...</em>
+    </p>
+}
+else
+{
+    <EditForm Model="editRoleFormModel" OnValidSubmit="HandleValidSubmit">
+        <div class="content__boxed">
+            <div class="content__wrap">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <div class="card">
+                            <div class="card-body pt-2">
+                                <h3 class="card-title">Edit Role - Id: @role.Id</h3>
+
+                                <hr/>
+                                <DataAnnotationsValidator/>
+                                <ValidationSummary/>
+                                <div>
+                                    <label for="Description">Code</label>
+                                    <InputText class="form-control" id="Description" @bind-Value="editRoleFormModel.Code"/>
+                                </div>
+                                <div>
+                                    <label for="Description">Description</label>
+                                    <InputText class="form-control" id="Description" @bind-Value="editRoleFormModel.Description"/>
+                                </div>
+
+                                <div>
+                                    <label for="State">State</label>
+                                    <InputCheckbox id="State" @bind-Value="editRoleFormModel.State"/>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private RoleFormModel editRoleFormModel = new();
+
+    public class RoleFormModel
+    {
+        public int Id { get; set; } = 0;
+        public String Code { get; set; }
+        public string Description { get; set; } = "";
+        public bool State { get; set; } = false;
+    }
+
+    [Parameter] public string Id { get; set; }
+
+    private Role? role;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await RoleService.GetRoleById(Id);
+
+        if (role is null)
+        {
+            NavigationManager.NavigateTo("/security/roles");
+        }
+
+        if (role != null) UpdateEditRoleFormModel(role);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var roleupdate = UpdateRoleFromEditRoleFormModel(editRoleFormModel, role);
+        // update role in database
+        var updatedRole = await RoleService.UpdateRole(roleupdate);
+        // update editRoleFormModel
+        UpdateEditRoleFormModel(updatedRole);
+        NavigationManager.NavigateTo("/security/roles");
+    }
+
+    private void UpdateEditRoleFormModel(Role role)
+    {
+        editRoleFormModel = new RoleFormModel
+        {
+            Code = role.Code.ToString(),
+            Description = role.Description,
+            State = role.State
+        };
+    }
+
+    private Role UpdateRoleFromEditRoleFormModel(RoleFormModel editRoleFormModel, Role role)
+    {
+        return new Role(
+            this.role.Id,
+            int.Parse(this.editRoleFormModel.Code),
+            this.editRoleFormModel.Description,
+            this.editRoleFormModel.State
+        );
+    }
+
+}

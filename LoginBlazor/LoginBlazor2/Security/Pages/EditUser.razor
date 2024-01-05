@@ -1,7 +1,7 @@
 ﻿@page "/security/edituser/{Id}"
 @inject UserService UserService
 @using LoginShared
-@using LoginBlazor2.Services
+@using LoginBlazor2.Security.Services
 @inject NavigationManager NavigationManager
 
 @if (user == null)
@@ -25,12 +25,14 @@ else
                                 <ValidationSummary/>
                                 <div>
                                     <label for="Name">Name</label>
-                                    <InputText class="form-control" id="Name" @bind-Value="editUserFormModel.Name"/>
+                                    <InputText class="form-control" id="Name" 
+                                               @bind-Value="editUserFormModel.Name"/>
                                 </div>
 
                                 <div>
                                     <label for="LastName">Last Name</label>
-                                    <InputText class="form-control" id="LastName" @bind-Value="editUserFormModel.LastName"/>
+                                    <InputText class="form-control" id="LastName" 
+                                               @bind-Value="editUserFormModel.LastName"/>
                                 </div>
 
                                 <div>

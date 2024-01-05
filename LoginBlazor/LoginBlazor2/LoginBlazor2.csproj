@@ -79,4 +79,10 @@
       <Folder Include="wwwroot\css\bootstrap\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Security\Pagesroles\NotImplemented.razor" />
+      <AdditionalFiles Include="Security\Pagesroles\Roles.razor" />
+      <AdditionalFiles Include="Security\Pagesroles\RolesForm.razor" />
+    </ItemGroup>
+
 </Project>

@@ -1,43 +1,66 @@
 ﻿using LoginShared;
 
-namespace LoginService;
-
-public class RoleService
+namespace LoginService
 {
-    private readonly List<Role> _roles;
-
-    public RoleService(List<Role> roles)
+    public class RoleService
     {
-        _roles = roles;
-    }
+        private readonly List<Role> _roles;
 
-    public Role CreateRole(Role newRole)
-    {
-        _roles.Add(newRole);
-        return newRole;
-    }
-
-    public List<Role> GetAllRoles()
-    {
-        return _roles;
-    }
-
-    public Role? GetRole(string roleName)
-    {
-        return _roles.Find(r => r.Name == roleName);
-    }
-
-    public Role? UpdateRole(string roleName, Role updatedRole)
-    {
-        for (int i = 0; i < _roles.Count; i++)
+        public RoleService(List<Role> roles)
         {
-            if (_roles[i].Name == roleName)
-            {
-                _roles[i] = updatedRole;
-                return _roles[i];
-            }
+            _roles = roles;
         }
 
-        return null;
+        public Role CreateRole(Role newRole)
+        {
+            var role = _roles.FirstOrDefault(r => r.Id == newRole.Id);
+            if (role == null)
+            {
+                _roles.Add(newRole);
+                return newRole;
+            }
+
+            return null;
+        }
+
+        public List<Role> GetAllRoles()
+        {
+            return _roles;
+        }
+
+        public Role? GetRoleById(int id)
+        {
+            return _roles.Find(r => r.Id == id);
+        }
+        
+
+        public Role? DeleteRole(int id)
+        {
+            var role = GetRoleById(id);
+            if (role != null)
+            {
+                _roles.Remove(role);
+                return role;
+            }
+
+            return null;
+        }
+
+        public Role UpdateRole(int id, Role updatedRole)
+        {
+            // Encontrar el índice del rol que quieres actualizar
+            var index = _roles.FindIndex(r => r.Id == id);
+
+            // Verificar si el rol existe o no
+            if (index == -1)
+            {
+                throw new KeyNotFoundException($"Role with Id {id} was not found.");
+            }
+
+            // Actualizar el rol
+            _roles[index] = updatedRole with { Id = id };
+            return _roles[index];
+        }
+        
     }
 }

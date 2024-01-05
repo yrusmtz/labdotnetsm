@@ -2,7 +2,7 @@
 using System.Net.Http.Json;
 using LoginShared;
 
-namespace LoginBlazor2.Services;
+namespace LoginBlazor2.Security.Services;
 
 public class UserService
 {
@@ -40,4 +40,4 @@ public class UserService
         var updateUser = await response.Content.ReadFromJsonAsync<User>();
         return updateUser;
     }
-}
+} 

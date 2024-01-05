@@ -60,35 +60,6 @@ namespace LoginService
             return null;
         }
 
-        //add role to user
-        public Role? AddRoleToUser(string userId, Role newRole)
-        {
-            var user = _users.Find(u => u.Email == userId);
-            if (user != null)
-            {
-                user.Roles.Add(newRole);
-                return newRole;
-            }
-
-            return null;
-        }
-
-        //remove role from user
-        public Role? RemoveRoleFromUser(string userId, string roleName)
-        {
-            var user = _users.Find(u => u.Email == userId);
-            if (user != null)
-            {
-                var role = user.Roles.FirstOrDefault(r => r.Name == roleName);
-                if (role != null)
-                {
-                    user.Roles.Remove(role);
-                    return role;
-                }
-            }
-
-            return null;
-        }
         
         //update user
         public User? UpdateUser(int userId, User updatedUser)

@@ -26,8 +26,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("OpenCORS", builder =>
     {
         builder.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -38,29 +38,39 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme,
-            new()
-            { Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
-              Description = "Insert the token with the 'Bearer ' prefix", });
+        new()
+        {
+            Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
+            Description = "Insert the token with the 'Bearer ' prefix",
+        });
 
     options.AddSecurityRequirement(new()
+        {
             {
-            { new()
-            { Reference = new() { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme } },
-              new string[] { } } }
+                new()
+                {
+                    Reference = new()
+                        { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
+                },
+                new string[] { }
+            }
+        }
     );
 });
 
 
 // Add authentication and authorization. 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-        options =>
+    options =>
+    {
+        options.TokenValidationParameters = new()
         {
-            options.TokenValidationParameters = new()
-            { ValidateIssuer = true, IssuerSigningKey = new SymmetricSecurityKey(
-                      Encoding.UTF8.GetBytes(
-                              "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf")),
-              ValidIssuer = "https://www.surymartinez.com", ValidAudience = "Minimal APIs Client" };
-        }
+            ValidateIssuer = true, IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf")),
+            ValidIssuer = "https://www.surymartinez.com", ValidAudience = "Minimal APIs Client"
+        };
+    }
 );
 builder.Services.AddAuthorization();
 
@@ -79,7 +89,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     // Poblar la base de datos con algunos usuarios
-    
 }
 
 app.UseHttpsRedirection();
@@ -89,41 +98,41 @@ app.UseAuthorization();
 
 // Protected endpoint with authorization for testing purposes
 app.MapGet("/protected", () => "Hello World!, you are authenticated")
-        .WithName("Protected")
-        .RequireAuthorization()
-        .WithOpenApi();
+    .WithName("Protected")
+    .RequireAuthorization()
+    .WithOpenApi();
 
 // Login endpoint
 app.MapPost("/auth/login", (LoginRequest request) =>
+    {
+        var user = userService.GetUserByEmail(request.Email);
+        if (user != null && request.Password == user.Password)
         {
-            var user = userService.GetUserByEmail(request.Email);
-            if (user != null && request.Password == user.Password)
-            {
-                // JWT token generation
-                var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
+            // JWT token generation
+            var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
 
-                var securityKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(
-                                "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf"));
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf"));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-                var jwtSecurityToken = new JwtSecurityToken(
-                        issuer: "https://www.surymartinez.com",
-                        audience: "Minimal APIs Client",
-                        claims: claims,
-                        expires: DateTime.UtcNow.AddHours(1),
-                        signingCredentials: credentials);
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: "https://www.surymartinez.com",
+                audience: "Minimal APIs Client",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials);
 
-                var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
-                return Results.Ok(new { AccessToken = accessToken });
-            }
+            return Results.Ok(new { AccessToken = accessToken });
+        }
 
-            return Results.BadRequest();
-        })
-        .WithName("Login")
-        .AllowAnonymous()
-        .WithOpenApi();
+        return Results.BadRequest();
+    })
+    .WithName("Login")
+    .AllowAnonymous()
+    .WithOpenApi();
 
 
 app.MapPost("/users", (User newUser) =>
@@ -168,59 +177,37 @@ app.MapDelete("/users/{userId}", (string userId) =>
     return Results.Ok(user);
 }).RequireAuthorization().WithName("DeleteUser").WithOpenApi();
 
+//roles
 //endpoints para roles
 app.MapPost("/roles", (Role newRole) =>
 {
     var createdRole = roleService.CreateRole(newRole);
-    return Results.Created($"/roles/{createdRole.Name}", createdRole);
+    return Results.Created($"/roles/{createdRole.Code}", createdRole);
 }).WithName("CreateRole").WithOpenApi();
 
 app.MapGet("/roles", () => roleService.GetAllRoles()).WithName("GetAllRoles").WithOpenApi();
 
-app.MapGet("/roles/{roleName}", (string roleName) =>
+app.MapGet("/roles/{id:int}", (int id) =>
 {
-    var role = roleService.GetRole(roleName);
+    var role = roleService.GetRoleById(id);
     if (role == null)
     {
-        return Results.NotFound($"Role with name {roleName} not found.");
+        return Results.NotFound($"Role with id {id} not found.");
     }
 
     return Results.Ok(role);
 }).WithName("GetRole").WithOpenApi();
 
-app.MapPut("/roles/{roleName}", (string roleName, Role updatedRole) =>
+app.MapPut("/roles/{id:int}", (int id, Role updatedRole) =>
 {
-    var role = roleService.UpdateRole(roleName, updatedRole);
-    if (role == null)
+    try
     {
-        return Results.NotFound($"Role with name {roleName} not found.");
+        var role = roleService.UpdateRole(id, updatedRole);
+        return Results.Ok(role);
     }
-
-    return Results.Ok(role);
+    catch (KeyNotFoundException)
+    {
+        return Results.NotFound($"Role with id {id} not found.");
+    }
 }).WithName("UpdateRole").WithOpenApi();
-
-
-
-//manejo de roles de usuario
-app.MapPost("/users/{userId}/roles", (string userId, Role newRole) =>
-{
-    var addedRole = userService.AddRoleToUser(userId, newRole);
-    if (addedRole == null)
-    {
-        return Results.BadRequest($"Cannot add role to user {userId}.");
-    }
-
-    return Results.Created($"/users/{userId}/roles/{addedRole.Name}", addedRole);
-}).WithName("AddRoleToUser").WithOpenApi();
-
-app.MapDelete("/users/{userId}/roles/{roleName}", (string userId, string roleName) =>
-{
-    var removedRole = userService.RemoveRoleFromUser(userId, roleName);
-    if (removedRole == null)
-    {
-        return Results.NotFound($"Cannot remove role {roleName} from user {userId}.");
-    }
-
-    return Results.Ok(removedRole);
-}).WithName("RemoveRoleFromUser").WithOpenApi();
 app.Run();
