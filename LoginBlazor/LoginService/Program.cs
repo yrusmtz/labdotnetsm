@@ -68,8 +68,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-UserService userService;
-RoleService roleService;
 
 
 // Ensure the database is created.
@@ -77,10 +75,14 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    userService = scope.ServiceProvider.GetRequiredService<UserService>();
-    roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
     await dbContext.Database.EnsureCreatedAsync();
 }
+using (var scope = app.Services.CreateScope())
+{
+    var userService = scope.ServiceProvider.GetRequiredService<UserService>();
+    var roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
+}
+
 
 // Use CORS with named policy
 app.UseCors("OpenCORS");
@@ -89,9 +91,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    // Poblar la base de datos con algunos usuarios
-
 }
 
 app.UseHttpsRedirection();
@@ -125,7 +124,7 @@ string GenerateJwtToken(string email)
 }
 
 // Login endpoint
-app.MapPost("/auth/login", async (LoginRequest request) =>
+app.MapPost("/auth/login", async (LoginRequest request, UserService userService) =>
         {
             User user;
             try
@@ -154,7 +153,7 @@ app.MapPost("/auth/login", async (LoginRequest request) =>
         .WithOpenApi();
 
 
-app.MapPost("/users", async (User newUser) =>
+app.MapPost("/users", async (User newUser, UserService userService) =>
         {
             User createdUser = await userService.CreateUserAsync(newUser);
             return Results.Created($"/users/{createdUser.Email}", createdUser);
@@ -162,11 +161,11 @@ app.MapPost("/users", async (User newUser) =>
         .WithName("CreateUser")
         .WithOpenApi();
 
-app.MapGet("/users", async () => await userService.GetAllUsersAsync())
+app.MapGet("/users", async (UserService userService) => await userService.GetAllUsersAsync())
         .WithName("GetAllUsers")
         .WithOpenApi();
 
-app.MapGet("/users/{userId}", async (int userId) =>
+app.MapGet("/users/{userId}", async (int userId, UserService userService) =>
 {
     User user;
     try
@@ -185,7 +184,7 @@ app.MapGet("/users/{userId}", async (int userId) =>
     return Results.Ok(user);
 });
 
-app.MapPut("/users/{userId}", async (int userId, User updatedUser) =>
+app.MapPut("/users/{userId}", async (int userId, User updatedUser, UserService userService) =>
         {
             User user;
             try
@@ -207,7 +206,7 @@ app.MapPut("/users/{userId}", async (int userId, User updatedUser) =>
         .WithOpenApi();
 
 //delete user
-app.MapDelete("/users/{userId}", async (int userId) =>
+app.MapDelete("/users/{userId}", async (int userId, UserService userService) =>
         {
             try
             {
@@ -229,7 +228,7 @@ app.MapDelete("/users/{userId}", async (int userId) =>
         .WithOpenApi();
 
 //endpoints para roles
-app.MapPost("/roles", async (Role newRole) =>
+app.MapPost("/roles", async (Role newRole, RoleService roleService) =>
         {
             Role createdRole = await roleService.CreateRoleAsync(newRole);
             return Results.Created($"/roles/{createdRole.Id}", createdRole);
@@ -237,11 +236,11 @@ app.MapPost("/roles", async (Role newRole) =>
         .WithName("CreateRole")
         .WithOpenApi();
 
-app.MapGet("/roles", async () => await roleService.GetAllRolesAsync())
+app.MapGet("/roles", async (RoleService roleService) => await roleService.GetAllRolesAsync())
         .WithName("GetAllRoles")
         .WithOpenApi();
 
-app.MapGet("/roles/{roleId}", async (int roleId) =>
+app.MapGet("/roles/{roleId}", async (int roleId, RoleService roleService) =>
         {
             Role role;
             try
@@ -262,7 +261,7 @@ app.MapGet("/roles/{roleId}", async (int roleId) =>
         .WithName("GetRole")
         .WithOpenApi();
 
-app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole) =>
+app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole, RoleService roleService) =>
         {
             Role role;
             try
@@ -285,7 +284,7 @@ app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole) =>
 
 
 //manejo de roles de usuario
-app.MapPost("/users/{userId}/roles", async (string userId, Role newRole) =>
+app.MapPost("/users/{userId}/roles", async (string userId, Role newRole, UserService userService, RoleService roleService) =>
         {
             Role role;
             try
@@ -321,7 +320,7 @@ app.MapPost("/users/{userId}/roles", async (string userId, Role newRole) =>
         .WithName("AddRoleToUser")
         .WithOpenApi();
 
-app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService) =>
         {
             Role role;
             try
