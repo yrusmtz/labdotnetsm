@@ -1,56 +1,75 @@
-﻿using System.Net;
+﻿namespace LoginBlazor2.Security.Services;
+
 using System.Net.Http.Json;
 using LoginShared;
 
-namespace LoginBlazor2.Security.Services
-
-{
-public class UserRole
-{
-    public string UserId { get; set; }
-    public string RoleId { get; set; }
-    public User User { get; set; }
-    public Role Role { get; set; }
-}
-}
-
 public class UserRoleService
 {
-    private readonly List<UserRole> userRoles;
-    private readonly UserService userService;
-    private readonly RoleService roleService;
+    private readonly HttpClient httpClient;
 
-    public UserRoleService(UserService userService, RoleService roleService)
+    // Declarando listas para guardar los roles y usuarios
+    private readonly List<Role> roleDb;
+    private readonly List<User> userDb;
+
+    public UserRoleService(HttpClient httpClient)
     {
-        this.userService = userService;
-        this.roleService = roleService;
-        userRoles = new List<UserRole>();
+        this.httpClient = httpClient;
     }
 
-    public async Task AssignRoleToUser(string userId, string roleId)
+    public UserRoleService(List<Role> roleDb, List<User> userDb)
     {
-        var user = await userService.GetUserById(userId);
-        var role = await roleService.GetRoleById(roleId);
-
-        if (user != null && role != null)
-        {
-            userRoles.Add(new UserRole
-            {
-                UserId = user.Id,
-                User = user,
-                RoleId = role.Id,
-                Role = role
-            });
-        }
+        // Guardando en las listas los roles y usuarios pasados como argumentos
+        this.roleDb = roleDb;
+        this.userDb = userDb;
     }
 
-    public List<Role> GetRolesByUserId(string userId)
+
+    public async Task<UserRole> CreateUserRole(UserRole newUserRole)
     {
-        return userRoles.Where(ur => ur.UserId == userId).Select(ur => ur.Role).ToList();
+        var response = await httpClient.PostAsJsonAsync("http://localhost:5001/userRoles", newUserRole);
+        var userRole = await response.Content.ReadFromJsonAsync<UserRole>();
+        return userRole!;
     }
 
-    public List<User> GetUsersByRoleId(string roleId)
+    public async Task<List<UserRole>> GetUserRoles()
     {
-        return userRoles.Where(ur => ur.RoleId == roleId).Select(ur => ur.User).ToList();
+        var userRoles = await httpClient.GetFromJsonAsync<List<UserRole>>("http://localhost:5001/userRoles");
+        return userRoles;
+    }
+
+    public async Task<UserRole?> GetUserRole(int userId, int roleId)
+    {
+        var userRole =
+            await httpClient.GetFromJsonAsync<UserRole>($"http://localhost:5001/userRoles/{userId}/{roleId}");
+        return userRole;
+    }
+
+    public async Task<UserRole> UpdateUserRole(int userId, int roleId, UserRole updatedUserRole)
+    {
+        var response =
+            await httpClient.PutAsJsonAsync($"http://localhost:5001/userRoles/{userId}/{roleId}", updatedUserRole);
+        var updateUserRole = await response.Content.ReadFromJsonAsync<UserRole>();
+        return updateUserRole;
+    }
+
+    public async Task<List<UserRole>> GetUserRolesByUserId(int userId)
+    {
+        var userRoles = await httpClient.GetFromJsonAsync<List<UserRole>>($"http://localhost:5001/userRoles/{userId}");
+        return userRoles;
+    }
+
+    public async Task<UserRole> AddUserRole(int userId, int roleId)
+    {
+        var newUserRole = new UserRole(userId, roleId);
+        var response = await httpClient.PostAsJsonAsync("http://localhost:5001/userRoles", newUserRole);
+        var userRole = await response.Content.ReadFromJsonAsync<UserRole>();
+        Console.WriteLine($"\nRole with id: {roleId} has been assigned to user with id: {userId}.");
+        return userRole!;
+    }
+
+    public Task DeleteUserRole(int userId, int roleId)
+    {
+        // TODO: Implement this method
+        throw new NotImplementedException();
     }
 }

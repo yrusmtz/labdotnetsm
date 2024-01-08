@@ -13,4 +13,5 @@ public record User(
 {
     public string Code => Email;
     public string FullName => $"{Name} {LastName}";
+    public object Username { get; set; }
 };

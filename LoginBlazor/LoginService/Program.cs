@@ -1,4 +1,3 @@
-using LoginService;
 using LoginShared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +8,9 @@ using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LoginBlazor2.Security.Services;
+using RoleService = LoginService.RoleService;
+using UserService = LoginService.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,7 @@ List<Role> roleDb = new();
 // Add services to the container.
 builder.Services.AddSingleton<UserService>(new UserService(userDb));
 builder.Services.AddSingleton<RoleService>(new RoleService(roleDb));
+builder.Services.AddSingleton<RoleUserService>(new RoleUserService(roleDb, userDb));
 
 // Add CORS middleware to allow requests from all origins
 builder.Services.AddCors(options =>
@@ -79,6 +82,7 @@ var app = builder.Build();
 
 var userService = app.Services.GetRequiredService<UserService>();
 var roleService = app.Services.GetRequiredService<RoleService>();
+var userRoleService = app.Services.GetRequiredService<UserRoleService>();
 
 // Use CORS with named policy
 app.UseCors("OpenCORS");
@@ -141,6 +145,49 @@ app.MapPost("/users", (User newUser) =>
     return Results.Created($"/users/{createdUser.Email}", createdUser);
 }).WithName("CreateUser").WithOpenApi();
 
+//desde aqui empiezan los endpoints de userRole
+//nuevo Endpoint POST /users/{userId}/roles/{roleId}
+app.MapPost("/userRoles/{userId}/{roleId}",
+        (int userId, int roleId) => { return userRoleService.AddUserRole(userId, roleId); }).WithName("AddUserRole")
+    .WithOpenApi();
+
+
+//nuevo Endpoint GET /users/{userId}/roles
+app.MapGet("/userRoles/{userId}", (int userId) => { return userRoleService.GetUserRolesByUserId(userId); })
+    .WithName("GetUserRolesByUserId").WithOpenApi();
+
+//nuevo Endpoint GET /users/{userId}/roles/{roleId}
+app.MapGet("/userRoles/{userId}/{roleId}", async (int userId, int roleId) =>
+{
+    try
+    {
+        var userRole = await userRoleService.GetUserRole(userId, roleId);
+        return userRole is null
+            ? Results.NotFound($"User Role with user id: {userId} and role id: {roleId} not found.")
+            : Results.Ok(userRole);
+    }
+    catch (Exception e)
+    {
+        return Results.Problem(detail: e.Message, statusCode: 500);
+    }
+}).WithName("GetUserRole").WithOpenApi();
+
+
+//nuevo Endpoint DELETE /users/{userId}/roles/{roleId}
+app.MapDelete("/userRoles/{userId}/{roleId}",
+        (int userId, int roleId) => { return userRoleService.DeleteUserRole(userId, roleId); })
+    .WithName("DeleteUserRole")
+    .WithOpenApi();
+
+//nuevo Endpoint PUT /users/{userId}/roles/{roleId}
+app.MapPut("/userRoles/{userId}/{roleId}",
+    (int userId, int roleId, UserRole updatedUserRole) =>
+    {
+        return userRoleService.UpdateUserRole(userId, roleId, updatedUserRole);
+    }).WithName("UpdateUserRole").WithOpenApi();
+
+
+//este no lo modifique 
 app.MapGet("/users", () => userService.GetAllUsers()).WithName("GetAllUsers").WithOpenApi();
 
 app.MapGet("/users/{userId}", (int userId) =>
@@ -210,4 +257,5 @@ app.MapPut("/roles/{id:int}", (int id, Role updatedRole) =>
         return Results.NotFound($"Role with id {id} not found.");
     }
 }).WithName("UpdateRole").WithOpenApi();
+
 app.Run();

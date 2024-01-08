@@ -5,4 +5,7 @@ public record Role(
     int Code,  // tipo int para el código.
     string Description,
     bool State  // un tipo bool para el estado.
-);
+)
+{
+    public object rol;
+}

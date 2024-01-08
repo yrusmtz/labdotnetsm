@@ -1,37 +1,20 @@
-﻿using LoginShared;
+﻿namespace LoginBlazor2.Security.Services;
 
-namespace LoginService;
+using System.Net.Http.Json;
+using LoginShared;
 
-public class UserRoleService
+public class RoleUserService
 {
-    private readonly List<UserRole> UserRoles = new List<UserRole>();
-    private readonly UserService userService;
+    //lista de roles
+    private readonly List<Role> roleDb;
 
-    public UserRoleService(UserService userService)
+    //lista de usuarios
+    private readonly List<User> userDb;
+
+    public RoleUserService(List<Role> roles, List<User> users)
     {
-        this.userService = userService;
-    }
-
-    public bool AssignRoleToUser(int userId, string roleId)
-    {
-        var user = userService.GetUserById(userId);
-        if (user == null)
-        {
-            throw new Exception($"The user with ID '{userId}' wasn't found");
-        }
-
-        var userRole = new UserRole(userId, roleId);
-        UserRoles.Add(userRole);
-        return true;
-    }
-
-    public IEnumerable<string> GetRolesByUserId(int userId)
-    {
-        return UserRoles.Where(ur => ur.UserId == userId).Select(ur => ur.RoleId);
-    }
-
-    public IEnumerable<int> GetUserIdsByRoleId(string roleId)
-    {
-        return UserRoles.Where(ur => ur.RoleId == roleId).Select(ur => ur.UserId);
+        // Guardando en las listas los roles y usuarios pasados como argumentos
+        this.roleDb = roleDb;
+        this.userDb = userDb;
     }
 }

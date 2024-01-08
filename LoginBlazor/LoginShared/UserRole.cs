@@ -1,13 +1,9 @@
-﻿namespace LoginShared;
-
-public class UserRole
+﻿
+namespace LoginShared
 {
-    public int UserId { get; set; }
-    public string RoleId { get; set; }
-
-    public UserRole(int userId, string roleId)
+    public record UserRole(int UserId, int RoleId)
     {
-        UserId = userId;
-        RoleId = roleId;
+        public User User { get; set; }
+        public Role Role { get; set; }
     }
 }

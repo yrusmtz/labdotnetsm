@@ -40,4 +40,19 @@ public class UserService
         var updateUser = await response.Content.ReadFromJsonAsync<User>();
         return updateUser;
     }
-} 
+    
+    public async Task<List<User>> GetUsersByIds(List<int> userIds)
+    {
+        var users = new List<User>();
+        foreach(var id in userIds)
+        {
+            var user = await GetUserById(id.ToString());
+            if(user != null)
+            {
+                users.Add(user);
+            }
+        }
+        return users;
+    }
+}
+

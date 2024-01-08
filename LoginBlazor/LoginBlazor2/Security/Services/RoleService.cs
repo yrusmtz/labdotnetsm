@@ -41,5 +41,20 @@ namespace LoginBlazor2.Security.Services
             var Role = await response.Content.ReadFromJsonAsync<Role>();
             return Role;
         }
+
+        public async Task<List<Role>> GetRolesByIds(List<string> roleIds)
+        {
+            var roles = new List<Role>();
+            foreach (var id in roleIds)
+            {
+                var role = await GetRoleById(id);
+                if (role != null)
+                {
+                    roles.Add(role);
+                }
+            }
+
+            return roles;
+        }
     }
 }
