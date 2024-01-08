@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\LoginBlazor2\LoginBlazor2.csproj" />
       <ProjectReference Include="..\LoginShared\LoginShared.csproj" />
     </ItemGroup>
 
