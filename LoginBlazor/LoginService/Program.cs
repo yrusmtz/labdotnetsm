@@ -11,6 +11,7 @@ using System.Text;
 using LoginBlazor2.Security.Services;
 using RoleService = LoginService.RoleService;
 using UserService = LoginService.UserService;
+// using UserRoleService = LoginService.UserRoleService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     }
 );
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

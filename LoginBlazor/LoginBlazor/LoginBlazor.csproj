@@ -54,4 +54,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\assets\img\Profile-photos\megamenu\img-6.jpg" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LoginBlazor2\LoginBlazor2.csproj" />
+    </ItemGroup>
+
 </Project>

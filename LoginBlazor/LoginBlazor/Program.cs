@@ -1,6 +1,8 @@
 using LoginBlazor.Components;
+// using LoginBlazor2.Security.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+// /builder.Services.AddScoped<UserRoleService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
