@@ -8,10 +8,10 @@ using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using LoginBlazor2.Security.Services;
 using RoleService = LoginService.RoleService;
 using UserService = LoginService.UserService;
-// using UserRoleService = LoginService.UserRoleService;
+using UserRoleService = LoginService.UserRoleService;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +22,7 @@ List<Role> roleDb = new();
 // Add services to the container.
 builder.Services.AddSingleton<UserService>(new UserService(userDb));
 builder.Services.AddSingleton<RoleService>(new RoleService(roleDb));
-builder.Services.AddSingleton<RoleUserService>(new RoleUserService(roleDb, userDb));
+builder.Services.AddSingleton<UserRoleService>(new UserRoleService(userDb, roleDb));
 
 // Add CORS middleware to allow requests from all origins
 builder.Services.AddCors(options =>
@@ -30,8 +30,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("OpenCORS", builder =>
     {
         builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+                .AllowAnyMethod()
+                .AllowAnyHeader();
     });
 });
 
@@ -42,43 +42,33 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme,
-        new()
-        {
-            Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
-            Description = "Insert the token with the 'Bearer ' prefix",
-        });
+            new()
+            { Type = SecuritySchemeType.ApiKey, In = ParameterLocation.Header, Name = HeaderNames.Authorization,
+              Description = "Insert the token with the 'Bearer ' prefix", });
 
     options.AddSecurityRequirement(new()
-        {
             {
-                new()
-                {
-                    Reference = new()
-                        { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
-                },
-                new string[] { }
-            }
-        }
+            { new()
+              { Reference = new()
+                { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme } },
+              new string[] { } } }
     );
 });
 
 
 // Add authentication and authorization. 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-    options =>
-    {
-        options.TokenValidationParameters = new()
+        options =>
         {
-            ValidateIssuer = true, IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(
-                    "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf")),
-            ValidIssuer = "https://www.surymartinez.com", ValidAudience = "Minimal APIs Client"
-        };
-    }
+            options.TokenValidationParameters = new()
+            { ValidateIssuer = true, IssuerSigningKey = new SymmetricSecurityKey(
+                      Encoding.UTF8.GetBytes(
+                              "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf")),
+              ValidIssuer = "https://www.surymartinez.com", ValidAudience = "Minimal APIs Client" };
+        }
 );
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 
@@ -105,41 +95,41 @@ app.UseAuthorization();
 
 // Protected endpoint with authorization for testing purposes
 app.MapGet("/protected", () => "Hello World!, you are authenticated")
-    .WithName("Protected")
-    .RequireAuthorization()
-    .WithOpenApi();
+        .WithName("Protected")
+        .RequireAuthorization()
+        .WithOpenApi();
 
 // Login endpoint
 app.MapPost("/auth/login", (LoginRequest request) =>
-    {
-        var user = userService.GetUserByEmail(request.Email);
-        if (user != null && request.Password == user.Password)
         {
-            // JWT token generation
-            var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
+            var user = userService.GetUserByEmail(request.Email);
+            if (user != null && request.Password == user.Password)
+            {
+                // JWT token generation
+                var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
 
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(
-                    "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf"));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+                var securityKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                                "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf"));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var jwtSecurityToken = new JwtSecurityToken(
-                issuer: "https://www.surymartinez.com",
-                audience: "Minimal APIs Client",
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: credentials);
+                var jwtSecurityToken = new JwtSecurityToken(
+                        issuer: "https://www.surymartinez.com",
+                        audience: "Minimal APIs Client",
+                        claims: claims,
+                        expires: DateTime.UtcNow.AddHours(1),
+                        signingCredentials: credentials);
 
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+                var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
-            return Results.Ok(new { AccessToken = accessToken });
-        }
+                return Results.Ok(new { AccessToken = accessToken });
+            }
 
-        return Results.BadRequest();
-    })
-    .WithName("Login")
-    .AllowAnonymous()
-    .WithOpenApi();
+            return Results.BadRequest();
+        })
+        .WithName("Login")
+        .AllowAnonymous()
+        .WithOpenApi();
 
 
 app.MapPost("/users", (User newUser) =>
@@ -150,14 +140,15 @@ app.MapPost("/users", (User newUser) =>
 
 //desde aqui empiezan los endpoints de userRole
 //nuevo Endpoint POST /users/{userId}/roles/{roleId}
-app.MapPost("/userRoles/{userId}/{roleId}",
-        (int userId, int roleId) => { return userRoleService.AddUserRole(userId, roleId); }).WithName("AddUserRole")
-    .WithOpenApi();
+app.MapPost("/userRoles", (int userId, int roleId) => { return userRoleService.AddUserRole(userId, roleId); })
+        .WithName("AddUserRole")
+        .WithOpenApi();
 
 
 //nuevo Endpoint GET /users/{userId}/roles
 app.MapGet("/userRoles/{userId}", (int userId) => { return userRoleService.GetUserRolesByUserId(userId); })
-    .WithName("GetUserRolesByUserId").WithOpenApi();
+        .WithName("GetUserRolesByUserId")
+        .WithOpenApi();
 
 //nuevo Endpoint GET /users/{userId}/roles/{roleId}
 app.MapGet("/userRoles/{userId}/{roleId}", async (int userId, int roleId) =>
@@ -165,9 +156,9 @@ app.MapGet("/userRoles/{userId}/{roleId}", async (int userId, int roleId) =>
     try
     {
         var userRole = await userRoleService.GetUserRole(userId, roleId);
-        return userRole is null
-            ? Results.NotFound($"User Role with user id: {userId} and role id: {roleId} not found.")
-            : Results.Ok(userRole);
+        return (userRole is null)
+                ? Results.NotFound($"User Role with user id: {userId} and role id: {roleId} not found.")
+                : Results.Ok(userRole);
     }
     catch (Exception e)
     {
@@ -178,16 +169,16 @@ app.MapGet("/userRoles/{userId}/{roleId}", async (int userId, int roleId) =>
 
 //nuevo Endpoint DELETE /users/{userId}/roles/{roleId}
 app.MapDelete("/userRoles/{userId}/{roleId}",
-        (int userId, int roleId) => { return userRoleService.DeleteUserRole(userId, roleId); })
-    .WithName("DeleteUserRole")
-    .WithOpenApi();
+                (int userId, int roleId) => { return userRoleService.DeleteUserRole(userId, roleId); })
+        .WithName("DeleteUserRole")
+        .WithOpenApi();
 
 //nuevo Endpoint PUT /users/{userId}/roles/{roleId}
 app.MapPut("/userRoles/{userId}/{roleId}",
-    (int userId, int roleId, UserRole updatedUserRole) =>
-    {
-        return userRoleService.UpdateUserRole(userId, roleId, updatedUserRole);
-    }).WithName("UpdateUserRole").WithOpenApi();
+        (int userId, int roleId, UserRole updatedUserRole) =>
+        {
+            return userRoleService.UpdateUserRole(userId, roleId, updatedUserRole);
+        }).WithName("UpdateUserRole").WithOpenApi();
 
 
 //este no lo modifique 

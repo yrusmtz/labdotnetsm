@@ -1,20 +1,49 @@
-﻿namespace LoginBlazor2.Security.Services;
+﻿using LoginShared;
 
-using System.Net.Http.Json;
-using LoginShared;
+namespace LoginService;
 
-public class RoleUserService
+public class UserRoleService
 {
     //lista de roles
-    private readonly List<Role> roleDb;
+    private readonly List<Role> _roleDb;
 
     //lista de usuarios
-    private readonly List<User> userDb;
+    private readonly List<User> _userDb;
 
-    public RoleUserService(List<Role> roles, List<User> users)
+    public UserRoleService(List<User> usersDb, List<Role> rolesDb)
     {
         // Guardando en las listas los roles y usuarios pasados como argumentos
-        this.roleDb = roleDb;
-        this.userDb = userDb;
+        _roleDb = rolesDb;
+        _userDb = usersDb;
+    }
+
+    public Task<bool> AddUserRole(int userId, int roleId)
+    {
+        // Raise no implemented
+        throw new NotImplementedException();
+    }
+    
+    public Task<bool> DeleteUserRole(int userId, int roleId)
+    {
+        // Raise no implemented
+        throw new NotImplementedException();
+    }
+    
+    public Task<Role?> GetUserRole(int userId, int roleId)
+    {
+        // Raise no implemented
+        throw new NotImplementedException();
+    }
+    
+    public Task<bool> UpdateUserRole(int userId, int roleId, UserRole updatedUserRole)
+    {
+        // Raise no implemented
+        throw new NotImplementedException();
+    }
+    
+    public Task<List<UserRole>> GetUserRolesByUserId(int userId)
+    {
+        // Raise no implemented
+        throw new NotImplementedException();
     }
 }
