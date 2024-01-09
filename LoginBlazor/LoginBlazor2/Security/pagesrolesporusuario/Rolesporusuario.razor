@@ -1,0 +1,70 @@
+﻿@page "/security/RolesporUsuario"
+@using LoginShared
+@inject UserRoleService UserRoleService
+@inject UserService UserService
+@inject RoleService RoleService
+@inject HttpClient Http
+@using LoginBlazor2.Security.Services
+@using System.Net
+@inject NavigationManager NavigationManager
+
+<h3>Asignar Rol a Usuario</h3>
+
+Seleccione usuario:
+<select @bind="selectedUserId">
+    @foreach (var user in users)
+    {
+        <option value="@user.Id">@user.Username</option>
+    }
+</select>
+
+Seleccione rol:
+<select @bind="selectedRoleId">
+    @foreach (var role in roles)
+    {
+        <option value="@role.Id">@role.rol</option>
+    }
+</select>
+
+<button @onclick="AssignRoleToUser">Asignar</button>
+
+<p>@errorMessage</p>
+
+@code {
+    int selectedUserId;
+    int selectedRoleId;
+
+    List<User> users;
+    List<Role> roles;
+
+    string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await UserService.GetUsers();
+        roles = await RoleService.GetRoles();
+    }
+
+    private async Task AssignRoleToUser()
+    {
+        try
+        {
+            await UserRoleService.AddUserRole(selectedUserId, selectedRoleId);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            errorMessage = "El Rol ya estaba asignado al Usuario.";
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = "La solicitud falló. Inténtalo de nuevo.";
+        }
+    }
+    private void NavigateToRolesporUsuario()
+    {
+        NavigationManager.NavigateTo("/security/RolesporUsuario");
+    }
+   
+    
+
+}
