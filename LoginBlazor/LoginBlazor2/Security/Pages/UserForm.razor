@@ -24,39 +24,23 @@
 
                             <div class="w-md-100% d-inline-flex row g-3 mb-4">
                                 <div class="col-sm-6">
-                                    <InputText
-                                        class="form-control"
-                                        placeholder="First name"
-                                        @bind-Value="newUser.Name"/>
+                                    <InputText class="form-control" placeholder="First name" @bind-Value="newUser.Name"/>
                                 </div>
 
                                 <div class="col-sm-6">
-                                    <InputText
-                                        class="form-control"
-                                        placeholder="Last name"
-                                        @bind-Value="newUser.LastName"/>
+                                    <InputText class="form-control" placeholder="Last name" @bind-Value="newUser.LastName"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <InputText
-                                        class="form-control"
-                                        placeholder="Department"
-                                        @bind-Value="newUser.Department"/>
+                                    <InputText class="form-control" placeholder="Department" @bind-Value="newUser.Department"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <InputText
-                                        type="email"
-                                        class="form-control"
-                                        placeholder="Email"
-                                        @bind-Value="newUser.Email"/>
+                                    <InputText type="email" class="form-control" placeholder="Email" @bind-Value="newUser.Email"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <InputText
-                                        class="form-control"
-                                        placeholder="Puesto"
-                                        @bind-Value="newUser.Puesto"/>
+                                    <InputText class="form-control" placeholder="Puesto" @bind-Value="newUser.Puesto"/>
                                 </div>
                             </div>
 
@@ -88,14 +72,14 @@
     private async Task HandleValidSubmit()
     {
         var user = new User(
-                -1,
-                newUser.Name,
-                newUser.LastName,
-                newUser.Department,
-                newUser.Email,
-                "defaultPassword",
-                newUser.Puesto);
-        await UserService.CreateUser(user);
+            -1,
+            newUser.Name,
+            newUser.LastName,
+            newUser.Department,
+            newUser.Email,
+            "defaultPassword",
+            newUser.Puesto);
+        var createdUser = await UserService.CreateUser(user);
 
         // navigate to the user list page.
         NavigationManager.NavigateTo("/Security/Users");
