@@ -8,13 +8,59 @@
 @using System.Net
 @inject NavigationManager NavigationManager
 
+<h3>Lista de Usuarios</h3>
+
+@if (users != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h3>Lista de Roles</h3>
+
+@if (roles != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in roles)
+            {
+                <tr>
+                    <td>@role.Id</td>
+                    <td>@role.rol</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 <h3>Asignar Rol a Usuario</h3>
 
 Seleccione usuario:
 <select @bind="selectedUserId">
     @foreach (var user in users)
     {
-        <option value="@user.Id">@user.Username</option>
+        <option value="@user.Id">@user.Name</option>
     }
 </select>
 
@@ -29,7 +75,6 @@ Seleccione rol:
 <button @onclick="AssignRoleToUser">Asignar</button>
 
 <p>@errorMessage</p>
-
 @code {
     int selectedUserId;
     int selectedRoleId;

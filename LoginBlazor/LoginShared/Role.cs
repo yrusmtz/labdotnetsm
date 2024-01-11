@@ -8,4 +8,5 @@ public record Role(
 )
 {
     public object rol;
+    public List<UserRole> UserRoles { get; set; }
 }

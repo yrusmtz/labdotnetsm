@@ -9,6 +9,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Builder;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(conne
 // Add services to the container.
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<UserRoleService>();
 
 // Add CORS middleware to allow requests from all origins
 builder.Services.AddCors(options =>
@@ -70,6 +72,7 @@ var app = builder.Build();
 
 UserService userService;
 RoleService roleService;
+UserRoleService userRoleService;
 
 
 // Ensure the database is created.
@@ -79,6 +82,7 @@ using (var scope = app.Services.CreateScope())
 
     userService = scope.ServiceProvider.GetRequiredService<UserService>();
     roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
+    userRoleService = scope.ServiceProvider.GetRequiredService<UserRoleService>();
     await dbContext.Database.EnsureCreatedAsync();
 }
 
@@ -361,6 +365,43 @@ app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =
         .WithName("RemoveRoleFromUser")
         .WithOpenApi();
 
+//add user to role endpoint
+// Add user to role endpoint
+app.MapPost("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+    {
+        await userRoleService.AddUserRoleAsync(userId, roleId);
+        Role role = await roleService.GetRoleIfExistAsync(roleId);
+        return Results.Created($"/users/{userId}/roles/{roleId}", role);
+    })
+    .WithName("AddUserToRole")
+    .WithOpenApi();
+
+// Delete user from role endpoint
+app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+    {
+        await userRoleService.DeleteUserRoleAsync(userId, roleId);
+        return Results.NoContent();
+    })
+    .WithName("DeleteUserFromRole")
+    .WithOpenApi();
+
+// Get user role endpoint
+app.MapGet("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+    {
+        Role role = await userRoleService.GetUserRoleAsync(userId, roleId);
+        return Results.Ok(role);
+    })
+    .WithName("GetUserRole")
+    .WithOpenApi();
+
+// Get user roles by user id endpoint
+app.MapGet("/users/{userId}/roles", async (int userId) =>
+    {
+        List<Role> roles = await userRoleService.GetUserRolesByUserIdAsync(userId);
+        return Results.Ok(roles);
+    })
+    .WithName("GetUserRolesByUserId")
+    .WithOpenApi();
 app.Run();
 
 

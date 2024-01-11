@@ -7,22 +7,10 @@ public class UserRoleService
 {
     private readonly HttpClient httpClient;
 
-    // Declarando listas para guardar los roles y usuarios
-    private readonly List<Role> roleDb;
-    private readonly List<User> userDb;
-
     public UserRoleService(HttpClient httpClient)
     {
         this.httpClient = httpClient;
     }
-
-    public UserRoleService(List<Role> roleDb, List<User> userDb)
-    {
-        // Guardando en las listas los roles y usuarios pasados como argumentos
-        this.roleDb = roleDb;
-        this.userDb = userDb;
-    }
-
 
     public async Task<UserRole> CreateUserRole(UserRole newUserRole)
     {
@@ -63,13 +51,9 @@ public class UserRoleService
         var newUserRole = new UserRole(userId, roleId);
         var response = await httpClient.PostAsJsonAsync("http://localhost:5001/userRoles", newUserRole);
         var userRole = await response.Content.ReadFromJsonAsync<UserRole>();
-        Console.WriteLine($"\nRole with id: {roleId} has been assigned to user with id: {userId}.");
         return userRole!;
     }
-
-    public Task DeleteUserRole(int userId, int roleId)
-    {
-        // TODO: Implement this method
-        throw new NotImplementedException();
-    }
 }
+
+    
+    

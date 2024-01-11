@@ -24,4 +24,6 @@ public record User(
     
     public string Code => Email;
     public string FullName => $"{Name} {LastName}";
+    
+    public List<UserRole> UserRoles { get; set; }
 };
