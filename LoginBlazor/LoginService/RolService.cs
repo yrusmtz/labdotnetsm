@@ -1,66 +1,47 @@
 ﻿using LoginShared;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoginService
 {
-    public class RoleService
+    public class RoleService(AppDbContext context)
     {
-        private readonly List<Role> _roles;
-
-        public RoleService(List<Role> roles)
+        public async Task<Role> CreateRoleAsync(Role newRole)
         {
-            _roles = roles;
+            await context.Roles.AddAsync(newRole);
+            await context.SaveChangesAsync();
+            return newRole;
+            
         }
 
-        public Role CreateRole(Role newRole)
+        public async Task<List<Role>> GetRolesAsync()
         {
-            var role = _roles.FirstOrDefault(r => r.Id == newRole.Id);
-            if (role == null)
+            return await context.Roles.ToListAsync();
+        }
+
+        public async Task<Role?> GetRoleIfExistAsync(int roleId)
+        {
+            return await context.Roles.SingleAsync(r => r.Id == roleId);
+        }
+
+        public async Task<Role> UpdateRoleAsync(int roleId, Role updatedRole)
+        {
+            if (roleId != updatedRole.Id)
             {
-                _roles.Add(newRole);
-                return newRole;
+                throw new AggregateException($"Role ID {roleId} does not match role ID {updatedRole.Id}");
             }
 
-            return null;
+            await GetRoleIfExistAsync(roleId);
+            context.Roles.Update(updatedRole);
+            await context.SaveChangesAsync();
+            return updatedRole;
         }
 
-        public List<Role> GetAllRoles()
+        public async Task<Role> DeleteRoleAsync(int roleId)
         {
-            return _roles;
+            var role = await GetRoleIfExistAsync(roleId);
+            context.Roles.Remove(role);
+            await context.SaveChangesAsync();
+            return role;
         }
-
-        public Role? GetRoleById(int id)
-        {
-            return _roles.Find(r => r.Id == id);
-        }
-        
-
-        public Role? DeleteRole(int id)
-        {
-            var role = GetRoleById(id);
-            if (role != null)
-            {
-                _roles.Remove(role);
-                return role;
-            }
-
-            return null;
-        }
-
-        public Role UpdateRole(int id, Role updatedRole)
-        {
-            // Encontrar el índice del rol que quieres actualizar
-            var index = _roles.FindIndex(r => r.Id == id);
-
-            // Verificar si el rol existe o no
-            if (index == -1)
-            {
-                throw new KeyNotFoundException($"Role with Id {id} was not found.");
-            }
-
-            // Actualizar el rol
-            _roles[index] = updatedRole with { Id = id };
-            return _roles[index];
-        }
-        
     }
 }
