@@ -7,6 +7,9 @@ public record Role(
     bool State  // un tipo bool para el estado.
 )
 {
-    public object rol;
-    public List<UserRole> UserRoles { get; set; }
-}
+    public int Id { get; init; }
+    public int Code { get; init; }
+    public string Description { get; init; }
+    public bool State { get; init; }
+   
+};

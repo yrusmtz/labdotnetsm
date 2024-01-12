@@ -9,21 +9,20 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString); });
+builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlServer(connectionString); });
 
 // Add services to the container.
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<UserRoleService>();
 
-// Add CORS middleware to allow requests from all origins
+// Add CORS middleware to allow requests from all originss
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("OpenCORS", corsPolicyBuilder =>
@@ -377,13 +376,13 @@ app.MapPost("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
     .WithOpenApi();
 
 // Delete user from role endpoint
-app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
-    {
-        await userRoleService.DeleteUserRoleAsync(userId, roleId);
-        return Results.NoContent();
-    })
-    .WithName("DeleteUserFromRole")
-    .WithOpenApi();
+// app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+//     {
+//         await userRoleService.DeleteUserRoleAsync(userId, roleId);
+//         return Results.NoContent();
+//     })
+//     .WithName("DeleteUserFromRole")
+//     .WithOpenApi();
 
 // Get user role endpoint
 app.MapGet("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
