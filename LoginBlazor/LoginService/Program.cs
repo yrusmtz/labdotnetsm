@@ -1,5 +1,7 @@
 using LoginService;
 using LoginShared;
+using LoginShared.Security.DTOs;
+using LoginShared.Security.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -125,10 +127,10 @@ string GenerateJwtToken(string email)
 // Login endpoint
 app.MapPost("/auth/login", async (LoginRequest request, UserService userService) =>
         {
-            User user;
+            UserEntity user;
             try
             {
-                user = await userService.GetUserByEmailAsync(request.Email);
+                user = await userService.TestUserPasswordAsync(request.Email);
             }
             catch (ArgumentException)
             {
@@ -152,9 +154,9 @@ app.MapPost("/auth/login", async (LoginRequest request, UserService userService)
         .WithOpenApi();
 
 
-app.MapPost("/users", async (User newUser, UserService userService) =>
+app.MapPost("/users", async (CreateUserDto newUser, UserService userService) =>
         {
-            User createdUser = await userService.CreateUserAsync(newUser);
+            GetUserDto createdUser = await userService.CreateUserAsync(newUser);
             return Results.Created($"/users/{createdUser.Email}", createdUser);
         })
         .WithName("CreateUser")
@@ -166,10 +168,10 @@ app.MapGet("/users", async (UserService userService) => await userService.GetAll
 
 app.MapGet("/users/{userId}", async (int userId, UserService userService) =>
 {
-    User user;
+    GetUserDto user;
     try
     {
-        user = await userService.GetUserByIdIfExistAsync(userId);
+        user = await userService.GetUserByIdAsync(userId);
     }
     catch (ArgumentException)
     {
@@ -183,9 +185,9 @@ app.MapGet("/users/{userId}", async (int userId, UserService userService) =>
     return Results.Ok(user);
 });
 
-app.MapPut("/users/{userId}", async (int userId, User updatedUser, UserService userService) =>
+app.MapPut("/users/{userId}", async (int userId, UpdateUserDto updatedUser, UserService userService) =>
         {
-            User user;
+            GetUserDto user;
             try
             {
                 user = await userService.UpdateUserAsync(userId, updatedUser);
@@ -227,9 +229,9 @@ app.MapDelete("/users/{userId}", async (int userId, UserService userService) =>
         .WithOpenApi();
 
 //endpoints para roles
-app.MapPost("/roles", async (Role newRole, RoleService roleService) =>
+app.MapPost("/roles", async (CreateRoleDto newRole, RoleService roleService) =>
         {
-            Role createdRole = await roleService.CreateRoleAsync(newRole);
+            var createdRole = await roleService.CreateRoleAsync(newRole);
             return Results.Created($"/roles/{createdRole.Id}", createdRole);
         })
         .WithName("CreateRole")
@@ -241,10 +243,10 @@ app.MapGet("/roles", async (RoleService roleService) => await roleService.GetAll
 
 app.MapGet("/roles/{roleId}", async (int roleId, RoleService roleService) =>
         {
-            Role role;
+            GetRoleDto role;
             try
             {
-                role = await roleService.GetRoleIfExistAsync(roleId);
+                role = await roleService.GetRoleByCodeAsync(roleId);
             }
             catch (ArgumentException)
             {
@@ -260,9 +262,9 @@ app.MapGet("/roles/{roleId}", async (int roleId, RoleService roleService) =>
         .WithName("GetRole")
         .WithOpenApi();
 
-app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole, RoleService roleService) =>
+app.MapPut("/roles/{roleId}", async (int roleId, UpdateRoleDto updatedRole, RoleService roleService) =>
         {
-            Role role;
+            GetRoleDto role;
             try
             {
                 role = await roleService.UpdateRoleAsync(roleId, updatedRole);
@@ -283,98 +285,98 @@ app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole, RoleService r
 
 
 //manejo de roles de usuario
-app.MapPost("/users/{userId}/roles",
-                async (string userId, Role newRole, UserService userService, RoleService roleService) =>
-                {
-                    Role role;
-                    try
-                    {
-                        role = await roleService.GetRoleIfExistAsync(newRole.Id);
-                    }
-                    catch (ArgumentException)
-                    {
-                        return Results.NotFound();
-                    }
-                    catch (Exception e)
-                    {
-                        return Results.Problem(e.Message);
-                    }
-                    User user;
-                    try
-                    {
-                        user = await userService.GetUserByIdIfExistAsync(int.Parse(userId));
-                    }
-                    catch (ArgumentException)
-                    {
-                        return Results.NotFound();
-                    }
-                    catch (Exception e)
-                    {
-                        return Results.Problem(e.Message);
-                    }
+// app.MapPost("/users/{userId}/roles",
+//                 async (string userId, Role newRole, UserService userService, RoleService roleService) =>
+//                 {
+//                     GetRoleDto role;
+//                     try
+//                     {
+//                         role = await roleService.GetRoleByIdAsync(newRole.Id);
+//                     }
+//                     catch (ArgumentException)
+//                     {
+//                         return Results.NotFound();
+//                     }
+//                     catch (Exception e)
+//                     {
+//                         return Results.Problem(e.Message);
+//                     }
+//                     GetUserDto user;
+//                     try
+//                     {
+//                         user = await userService.GetUserByIdAsync(int.Parse(userId));
+//                     }
+//                     catch (ArgumentException)
+//                     {
+//                         return Results.NotFound();
+//                     }
+//                     catch (Exception e)
+//                     {
+//                         return Results.Problem(e.Message);
+//                     }
+//
+//                      updatedUser = user with { Roles = user.Roles.Append(role).ToList() };
+//                     await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
+//                     return Results.Created($"/users/{userId}/roles/{newRole.Id}", newRole);
+//                 })
+//         .WithName("AddRoleToUser")
+//         .WithOpenApi();
 
-                    User updatedUser = user with { Roles = user.Roles.Append(role).ToList() };
-                    await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
-                    return Results.Created($"/users/{userId}/roles/{newRole.Id}", newRole);
-                })
-        .WithName("AddRoleToUser")
-        .WithOpenApi();
-
-app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService) =>
-        {
-            Role role;
-            try
-            {
-                role = await roleService.GetRoleIfExistAsync(roleId);
-            }
-            catch (ArgumentException)
-            {
-                return Results.NotFound();
-            }
-            catch (Exception e)
-            {
-                return Results.Problem(e.Message);
-            }
-            User user;
-            try
-            {
-                user = await userService.GetUserByIdIfExistAsync(userId);
-            }
-            catch (ArgumentException)
-            {
-                return Results.NotFound();
-            }
-            catch (Exception e)
-            {
-                return Results.Problem(e.Message);
-            }
-            if (!user.Roles.Contains(role))
-            {
-                return Results.NotFound();
-            }
-            User updatedUser = user with { Roles = user.Roles.Where(r => r.Id != roleId).ToList() };
-            await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
-
-            return Results.Ok(updatedUser);
-        })
-        .WithName("RemoveRoleFromUser")
-        .WithOpenApi();
-
-//add user to role endpoint
-// Add user to role endpoint
-app.MapPost("/users/{userId}/roles/{roleId}", async (
-                int userId, 
-                int roleId, 
-                UserService userService,
-                RoleService roleService, 
-                UserRoleService userRoleService) =>
-        {
-            await userRoleService.AddUserRoleAsync(userId, roleId);
-            Role role = await roleService.GetRoleIfExistAsync(roleId);
-            return Results.Created($"/users/{userId}/roles/{roleId}", role);
-        })
-        .WithName("AddUserToRole")
-        .WithOpenApi();
+// app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService) =>
+//         {
+//             Role role;
+//             try
+//             {
+//                 role = await roleService.GetRoleIfExistAsync(roleId);
+//             }
+//             catch (ArgumentException)
+//             {
+//                 return Results.NotFound();
+//             }
+//             catch (Exception e)
+//             {
+//                 return Results.Problem(e.Message);
+//             }
+//             User user;
+//             try
+//             {
+//                 user = await userService.GetUserByIdIfExistAsync(userId);
+//             }
+//             catch (ArgumentException)
+//             {
+//                 return Results.NotFound();
+//             }
+//             catch (Exception e)
+//             {
+//                 return Results.Problem(e.Message);
+//             }
+//             if (!user.Roles.Contains(role))
+//             {
+//                 return Results.NotFound();
+//             }
+//             User updatedUser = user with { Roles = user.Roles.Where(r => r.Id != roleId).ToList() };
+//             await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
+//
+//             return Results.Ok(updatedUser);
+//         })
+//         .WithName("RemoveRoleFromUser")
+//         .WithOpenApi();
+//
+// //add user to role endpoint
+// // Add user to role endpoint
+// app.MapPost("/users/{userId}/roles/{roleId}", async (
+//                 int userId, 
+//                 int roleId, 
+//                 UserService userService,
+//                 RoleService roleService, 
+//                 UserRoleService userRoleService) =>
+//         {
+//             await userRoleService.AddUserRoleAsync(userId, roleId);
+//             Role role = await roleService.GetRoleIfExistAsync(roleId);
+//             return Results.Created($"/users/{userId}/roles/{roleId}", role);
+//         })
+//         .WithName("AddUserToRole")
+//         .WithOpenApi();
 
 // Delete user from role endpoint
 // app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
@@ -386,18 +388,18 @@ app.MapPost("/users/{userId}/roles/{roleId}", async (
 //     .WithOpenApi();
 
 // Get user role endpoint
-app.MapGet("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserRoleService userRoleService) =>
-        {
-            Role role = await userRoleService.GetUserRoleAsync(userId, roleId);
-            return Results.Ok(role);
-        })
-        .WithName("GetUserRole")
-        .WithOpenApi();
+// app.MapGet("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserRoleService userRoleService) =>
+//         {
+//             Role role = await userRoleService.GetUserRoleAsync(userId, roleId);
+//             return Results.Ok(role);
+//         })
+//         .WithName("GetUserRole")
+//         .WithOpenApi();
 
 // Get user roles by user id endpoint
 app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleService) =>
         {
-            List<Role> roles = await userRoleService.GetUserRolesByUserIdAsync(userId);
+            List<GetRoleDto> roles = await userRoleService.GetUserRolesByUserIdAsync(userId);
             return Results.Ok(roles);
         })
         .WithName("GetUserRolesByUserId")

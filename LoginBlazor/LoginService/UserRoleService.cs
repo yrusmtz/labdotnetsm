@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using LoginShared;
+using LoginShared.Security.DTOs;
+using LoginShared.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoginService
@@ -15,7 +17,8 @@ namespace LoginService
             if (await _context.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId))
                 throw new ArgumentException($"User with ID {userId} already has a role with ID {roleId}");
 
-            _context.UserRoles.Add(new UserRole(userId, roleId));
+            var newUserRolerel = UserRoleEntity.CreateNewUserRole(userId, roleId);
+            _context.UserRoles.Add(newUserRolerel);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -31,21 +34,35 @@ namespace LoginService
             return true;
         }
 
-        public async Task<Role> GetUserRoleAsync(int userId, int roleId)
+        public async Task<GetRoleDto> GetUserRoleAsync(int userId, int roleId)
         {
             var userRole = await _context.UserRoles.Include(ur => ur.Role).SingleOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
             if (userRole == null)
                 throw new ArgumentException($"No UserRole found for User ID {userId} and Role ID {roleId}");
 
-            return userRole.Role;
+            var getRoleDto = new GetRoleDto
+            (
+                    userRole.Role.Id,
+                    userRole.Role.Code,
+                    userRole.Role.Description,
+                    userRole.Role.State
+            );
+            return getRoleDto;
         }
 
-        public async Task<List<Role>> GetUserRolesByUserIdAsync(int userId)
+        public async Task<List<GetRoleDto>> GetUserRolesByUserIdAsync(int userId)
         {
             var userRoles = await _context.UserRoles.Include(ur => ur.Role).Where(ur => ur.UserId == userId).ToListAsync();
-            return userRoles.Select(ur => ur.Role).ToList();
+            return userRoles.Select(ur => new GetRoleDto
+            (
+                    ur.Role.Id,
+                    ur.Role.Code,
+                    ur.Role.Description,
+                    ur.Role.State
+            )).ToList();
+
         }
 
-       
+
     }
 }
