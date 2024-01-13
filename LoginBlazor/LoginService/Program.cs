@@ -284,83 +284,79 @@ app.MapPut("/roles/{roleId}", async (int roleId, UpdateRoleDto updatedRole, Role
         .WithOpenApi();
 
 
-//manejo de roles de usuario
-// app.MapPost("/users/{userId}/roles",
-//                 async (string userId, Role newRole, UserService userService, RoleService roleService) =>
-//                 {
-//                     GetRoleDto role;
-//                     try
-//                     {
-//                         role = await roleService.GetRoleByIdAsync(newRole.Id);
-//                     }
-//                     catch (ArgumentException)
-//                     {
-//                         return Results.NotFound();
-//                     }
-//                     catch (Exception e)
-//                     {
-//                         return Results.Problem(e.Message);
-//                     }
-//                     GetUserDto user;
-//                     try
-//                     {
-//                         user = await userService.GetUserByIdAsync(int.Parse(userId));
-//                     }
-//                     catch (ArgumentException)
-//                     {
-//                         return Results.NotFound();
-//                     }
-//                     catch (Exception e)
-//                     {
-//                         return Results.Problem(e.Message);
-//                     }
-//
-//                      updatedUser = user with { Roles = user.Roles.Append(role).ToList() };
-//                     await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
-//                     return Results.Created($"/users/{userId}/roles/{newRole.Id}", newRole);
-//                 })
-//         .WithName("AddRoleToUser")
-//         .WithOpenApi();
+//manejo de roles de usuario,AddUserRoleAsync
+app.MapPost("/users/{userId}/roles",
+                async (string userId, int newRoleId, UserService userService, RoleService roleService,UserRoleService userRoleService) =>
+                {
+                    GetRoleDto role;
+                    try
+                    {
+                        role = await roleService.GetRoleByIdAsync(newRoleId);
+                    }
+                    catch (ArgumentException)
+                    {
+                        return Results.NotFound();
+                    }
+                    catch (Exception e)
+                    {
+                        return Results.Problem(e.Message);
+                    }
+                    GetUserDto user;
+                    try
+                    {
+                        user = await userService.GetUserByIdAsync(int.Parse(userId));
+                    }
+                    catch (ArgumentException)
+                    {
+                        return Results.NotFound();
+                    }
+                    catch (Exception e)
+                    {
+                        return Results.Problem(e.Message);
+                    }
+                    // necesito llamar al servicio y el metodo AddUserRoleAsync
+                    await userRoleService.AddUserRoleAsync(user.Id, role.Id);
+                    return Results.Created($"/users/{userId}/roles/{newRoleId}", newRoleId);
+                })
+        .WithName("AddRoleToUser")
+        .WithOpenApi();
 
-// app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService) =>
-//         {
-//             Role role;
-//             try
-//             {
-//                 role = await roleService.GetRoleIfExistAsync(roleId);
-//             }
-//             catch (ArgumentException)
-//             {
-//                 return Results.NotFound();
-//             }
-//             catch (Exception e)
-//             {
-//                 return Results.Problem(e.Message);
-//             }
-//             User user;
-//             try
-//             {
-//                 user = await userService.GetUserByIdIfExistAsync(userId);
-//             }
-//             catch (ArgumentException)
-//             {
-//                 return Results.NotFound();
-//             }
-//             catch (Exception e)
-//             {
-//                 return Results.Problem(e.Message);
-//             }
-//             if (!user.Roles.Contains(role))
-//             {
-//                 return Results.NotFound();
-//             }
-//             User updatedUser = user with { Roles = user.Roles.Where(r => r.Id != roleId).ToList() };
-//             await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
-//
-//             return Results.Ok(updatedUser);
-//         })
-//         .WithName("RemoveRoleFromUser")
-//         .WithOpenApi();
+app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService, UserRoleService userRoleService) =>
+        {
+            GetRoleDto role;
+            try
+            {
+                role = await roleService.GetRoleByIdAsync(roleId);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+            GetUserDto user;
+            try
+            {
+                user = await userService.GetUserByIdAsync(userId);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+           
+            await userRoleService.DeleteUserRoleAsync(user.Id, role.Id);
+            
+
+            return Results.Ok(user);
+        })
+        .WithName("RemoveRoleFromUser")
+        .WithOpenApi();
 //
 // //add user to role endpoint
 // // Add user to role endpoint
