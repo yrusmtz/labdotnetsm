@@ -3,6 +3,7 @@
 @inject RoleService RoleService
 @inject NavigationManager NavigationManager
 @using LoginShared
+@using LoginShared.Security.DTOs
 
 
 <div id="root" class="root front-container">
@@ -62,14 +63,12 @@
 
     private async Task HandleValidSubmit()
     {
-        var role = new Role(
-            //id
-            0,
+        var createRoleDto = new CreateRoleDto(
             newRole.Code,
             newRole.Description,
             newRole.State
         );
-        var createdRole = await RoleService.CreateRole(role);
+        var createdRole = await RoleService.CreateRole(createRoleDto);
 
         // navigate to the role list page.
         NavigationManager.NavigateTo("/Security/Roles");

@@ -3,6 +3,7 @@
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @using LoginShared
+@using LoginShared.Security.DTOs
 
 
 <div id="root" class="root front-container">
@@ -71,15 +72,18 @@
 
     private async Task HandleValidSubmit()
     {
-        var user = new User(
-            -1,
-            newUser.Name,
+        // create the CreateUserDto para enviarlo al servicio de creacion de usuarios
+        var user = new CreateUserDto
+        (  newUser.Name,
             newUser.LastName,
             newUser.Department,
             newUser.Email,
-            "defaultPassword",
-            newUser.Puesto,
-            new List<Role>());
+            newUser.Puesto
+            );
+        
+        
+      
+        
         var createdUser = await UserService.CreateUser(user);
 
         // navigate to the user list page.

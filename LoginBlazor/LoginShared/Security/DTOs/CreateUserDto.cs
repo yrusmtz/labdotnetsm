@@ -5,6 +5,7 @@ public record CreateUserDto(
         string LastName,
         string Department,
         string Email,
-        string Password,
         string Puesto
 );
+        
+

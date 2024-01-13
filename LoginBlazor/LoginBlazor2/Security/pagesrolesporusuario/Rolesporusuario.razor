@@ -6,6 +6,7 @@
 @inject HttpClient Http
 @using LoginBlazor2.Security.Services
 @using System.Net
+@using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 
 <h3>Lista de Usuarios</h3>
@@ -38,16 +39,16 @@
     <table>
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Rol</th>
+                <th>code</th>
+                <th>descripcion</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var role in roles)
             {
                 <tr>
-                    <td>@role.Id</td>
-                    <td>@role.rol</td>
+                    <td>@role.Code</td>
+                    <td>@role.Description</td>
                 </tr>
             }
         </tbody>
@@ -68,7 +69,7 @@ Seleccione rol:
 <select @bind="selectedRoleId">
     @foreach (var role in roles)
     {
-        <option value="@role.Id">@role.rol</option>
+        <option value="@role.Code">@role.Description</option>
     }
 </select>
 
@@ -79,8 +80,8 @@ Seleccione rol:
     int selectedUserId;
     int selectedRoleId;
 
-    List<User> users;
-    List<Role> roles;
+    List<GetUserDto> users;
+    List<GetRoleDto> roles;
 
     string errorMessage = string.Empty;
 
@@ -94,7 +95,7 @@ Seleccione rol:
     {
         try
         {
-            await UserRoleService.AddUserRole(selectedUserId, selectedRoleId);
+            await UserRoleService.AddUserRoleAsync(selectedUserId, selectedRoleId);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {

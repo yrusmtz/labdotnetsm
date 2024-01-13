@@ -36,7 +36,7 @@ namespace LoginBlazor2.Security.Services
             return roleResponse!;
         }
 
-        public async Task<GetRoleDto> UpdateRole(Role role)
+        public async Task<GetRoleDto> UpdateRole(UpdateRoleDto role)
         {
             var response = await httpClient.PutAsJsonAsync($"http://localhost:5001/roles/{role.Id}", role);
             var roleResponse = await response.Content.ReadFromJsonAsync<GetRoleDto>();

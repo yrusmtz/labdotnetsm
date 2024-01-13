@@ -6,5 +6,5 @@ public record UpdateUserDto(
         string LastName,
         string Department,
         string Email,
-        string Password,
+        // string Password,
         string Puesto);

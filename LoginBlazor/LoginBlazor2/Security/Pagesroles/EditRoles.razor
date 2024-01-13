@@ -2,6 +2,7 @@
 @inject RoleService RoleService
 @using LoginShared
 @using LoginBlazor2.Security.Services
+@using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 
 
@@ -62,7 +63,7 @@ else
 
     [Parameter] public string Id { get; set; }
 
-    private Role? role;
+    private GetRoleDto? role;
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,7 +87,7 @@ else
         NavigationManager.NavigateTo("/security/roles");
     }
 
-    private void UpdateEditRoleFormModel(Role role)
+    private void UpdateEditRoleFormModel(GetRoleDto role)
     {
         editRoleFormModel = new RoleFormModel
         {
@@ -96,9 +97,9 @@ else
         };
     }
 
-    private Role UpdateRoleFromEditRoleFormModel(RoleFormModel editRoleFormModel, Role role)
+    private UpdateRoleDto UpdateRoleFromEditRoleFormModel(RoleFormModel editRoleFormModel, GetRoleDto role)
     {
-        return new Role(
+        return new UpdateRoleDto(
             this.role.Id,
             int.Parse(this.editRoleFormModel.Code),
             this.editRoleFormModel.Description,

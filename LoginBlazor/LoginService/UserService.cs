@@ -9,13 +9,14 @@ namespace LoginService
     {
         public async Task<GetUserDto> CreateUserAsync(CreateUserDto newUserDto)
         {
+            string defaultPassword = "12345678";
             var newUser = UserEntity.CreateNewUser(
                     newUserDto.Name,
                     newUserDto.LastName,
                     newUserDto.Department,
                     newUserDto.Puesto,
                     newUserDto.Email,
-                    newUserDto.Password);
+                    defaultPassword);
             context.Users.Add(newUser);
             await context.SaveChangesAsync();
             var getUserDto = new GetUserDto
@@ -100,7 +101,7 @@ namespace LoginService
             user.LastName = updatedUser.LastName;
             user.Department = updatedUser.Department;
             user.Email = updatedUser.Email;
-            user.Password = updatedUser.Password;
+            // user.Password = updatedUser.Password;
             user.Puesto = updatedUser.Puesto;
 
             context.Users.Update(user);

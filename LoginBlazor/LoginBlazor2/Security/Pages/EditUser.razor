@@ -2,6 +2,7 @@
 @inject UserService UserService
 @using LoginShared
 @using LoginBlazor2.Security.Services
+@using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 
 @if (user == null)
@@ -19,7 +20,7 @@ else
                     <div class="col-md-6 text-center">
                         <div class="card">
                             <div class="card-body pt-2">
-                                <h3 class="card-title">Edit @user.FullName</h3>
+                                <h3 class="card-title">Edit @user.Name</h3>
                                 <hr/>
                                 <DataAnnotationsValidator/>
                                 <ValidationSummary/>
@@ -75,7 +76,7 @@ else
 
     [Parameter] public string Id { get; set; }
 
-    private User? user;
+    private GetUserDto? user;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,11 +94,11 @@ else
     {
       
         
-        var userupdate = UpdateUserFromEditUserFormModel(editUserFormModel, user);
+        var updateUserDto = UpdateUserFromEditUserFormModel(editUserFormModel, user);
         // update user in database
         Console.WriteLine("User updated");
-        Console.WriteLine(userupdate);
-        var updatedUser = await UserService.UpdateUser(userupdate);
+        Console.WriteLine(updateUserDto);
+        var updatedUser = await UserService.UpdateUser(updateUserDto);
         // update editUserFormModel
         Console.WriteLine("User updated");
         Console.WriteLine(updatedUser);
@@ -107,7 +108,7 @@ else
 
     //crea un metodo privado que recibe un User y actualiza el editUserFormModel
 
-    private void UpdateEditUserFormModel(User user)
+    private void UpdateEditUserFormModel(GetUserDto user)
     {
         editUserFormModel = new UserFormModel
         {
@@ -122,18 +123,17 @@ else
 
     //crear una funcion que reciba como parametro un UserFormModel y un user y devuelva un User actualizado con los datos del UserFormModel
 
-    private User UpdateUserFromEditUserFormModel(UserFormModel editUserFormModel, User user)
+    private UpdateUserDto UpdateUserFromEditUserFormModel(UserFormModel editUserFormModel, GetUserDto user)
     {
-         return new (
-            this.user.Id, // New ID
-            this.editUserFormModel.Name,
-            this.editUserFormModel.LastName, 
-            this.editUserFormModel.Department,
-            this.editUserFormModel.Email,
-            this.user.Password,
-             this.editUserFormModel.Puesto,
-            this.user.Roles
-         );
+        return new UpdateUserDto
+        (
+            user.Id,
+            editUserFormModel.Name,
+            editUserFormModel.LastName,
+            editUserFormModel.Department,
+            editUserFormModel.Email,
+            editUserFormModel.Puesto
+        );
     }
 
 

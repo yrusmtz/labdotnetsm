@@ -2,6 +2,7 @@
 @using LoginShared
 @inject HttpClient Http
 @using LoginBlazor2.Security.Services
+@using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 @inject UserService UserService
 
@@ -102,7 +103,7 @@
                                              loading="lazy"
                                              style="max-width: 100%; max-height: 100%;">
                                     </div>
-                                    <a href="/security/detailsuser/@user.Id" class="h5">@user.FullName</a>
+                                    <a href="/security/detailsuser/@user.Id" class="h5">@user.Name</a>
                                     <p class="text-muted">@user.Puesto</p>
                                     <p>@user.Department</p>
 
@@ -119,8 +120,7 @@
 </div>
 
 @code {
-
-    private List<User> users;
+    private List<GetUserDto> users;
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,12 +134,11 @@
 
     private void NavigateToUserDetails(int id)
     {
-        NavigationManager.NavigateTo("/Security/DetailsUser/" + id);
+        NavigationManager.NavigateTo($"/Security/DetailsUser/{id}");
     }
-
+    
     private void NavigateToUserEdit(int id)
     {
-        NavigationManager.NavigateTo("/Security/EditUser/" + id);
+        NavigationManager.NavigateTo($"/Security/EditUser/{id}");
     }
-
 }
