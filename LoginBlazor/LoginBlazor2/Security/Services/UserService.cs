@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using LoginShared;
+using LoginShared.Security.DTOs;
 
 namespace LoginBlazor2.Security.Services;
 
@@ -14,36 +15,36 @@ public class UserService
         this.httpClient = httpClient;
     }
 
-    public async Task<User> CreateUser(User newUser)
+    public async Task<GetUserDto> CreateUser(CreateUserDto newUserDto)
     {
-        var response = await httpClient.PostAsJsonAsync("http://localhost:5001/users", newUser);
-        var user = await response.Content.ReadFromJsonAsync<User>();
-        return user!;
+        var response = await httpClient.PostAsJsonAsync("http://localhost:5001/users", newUserDto);
+        var userReponse = await response.Content.ReadFromJsonAsync<GetUserDto>();
+        return userReponse!;
     }
 
-    public async Task<List<User>> GetUsers()
+    public async Task<List<GetUserDto>> GetUsers()
     {
-        var users = await httpClient.GetFromJsonAsync<List<User>>("http://localhost:5001/users");
+        var users = await httpClient.GetFromJsonAsync<List<GetUserDto>>("http://localhost:5001/users");
         Console.WriteLine(users);
-        return users;
+        return users!;
     }
 
-    public async Task<User?> GetUserById(string userId)
+    public async Task<GetUserDto?> GetUserById(string userId)
     {
-        var user = await httpClient.GetFromJsonAsync<User>($"http://localhost:5001/users/{userId}");
-        return user;
+        var userResponse = await httpClient.GetFromJsonAsync<GetUserDto>($"http://localhost:5001/users/{userId}");
+        return userResponse!;
     }
 
-    public async Task<User> UpdateUser(User user)
+    public async Task<GetUserDto> UpdateUser(UpdateUserDto user)
     {
         var response = await httpClient.PutAsJsonAsync($"http://localhost:5001/users/{user.Id}", user);
-        var updateUser = await response.Content.ReadFromJsonAsync<User>();
-        return updateUser;
+        var updateUser = await response.Content.ReadFromJsonAsync<GetUserDto>();
+        return updateUser!;
     }
     
-    public async Task<List<User>> GetUsersByIds(List<int> userIds)
+    public async Task<List<GetUserDto>> GetUsersByIds(List<int> userIds)
     {
-        var users = new List<User>();
+        var users = new List<GetUserDto>();
         foreach(var id in userIds)
         {
             var user = await GetUserById(id.ToString());

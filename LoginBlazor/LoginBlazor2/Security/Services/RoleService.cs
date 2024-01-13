@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using LoginShared;
+using LoginShared.Security.DTOs;
 
 namespace LoginBlazor2.Security.Services
 
@@ -15,36 +16,36 @@ namespace LoginBlazor2.Security.Services
             this.httpClient = httpClient;
         }
 
-        public async Task<Role> CreateRole(Role Role)
+        public async Task<GetRoleDto> CreateRole(CreateRoleDto role )
         {
-            var response = await httpClient.PostAsJsonAsync("http://localhost:5001/roles", Role);
-            var role = await response.Content.ReadFromJsonAsync<Role>();
-            return role!;
+            var response = await httpClient.PostAsJsonAsync("http://localhost:5001/roles", role);
+            var roleResponce = await response.Content.ReadFromJsonAsync<GetRoleDto>();
+            return roleResponce!;
         }
 
-        public async Task<List<Role>> GetRoles()
+        public async Task<List<GetRoleDto>> GetRoles()
         {
-            var roles = await httpClient.GetFromJsonAsync<List<Role>>("http://localhost:5001/roles");
+            var roles = await httpClient.GetFromJsonAsync<List<GetRoleDto>>("http://localhost:5001/roles");
             Console.WriteLine(roles);
-            return roles;
+            return roles!;
         }
 
-        public async Task<Role?> GetRoleById(String roleId)
+        public async Task<GetRoleDto?> GetRoleById(String roleId)
         {
-            var role = await httpClient.GetFromJsonAsync<Role>($"http://localhost:5001/roles/{roleId}");
-            return role;
+            var roleResponse = await httpClient.GetFromJsonAsync<GetRoleDto>($"http://localhost:5001/roles/{roleId}");
+            return roleResponse!;
         }
 
-        public async Task<Role> UpdateRole(Role role)
+        public async Task<GetRoleDto> UpdateRole(Role role)
         {
             var response = await httpClient.PutAsJsonAsync($"http://localhost:5001/roles/{role.Id}", role);
-            var Role = await response.Content.ReadFromJsonAsync<Role>();
-            return Role;
+            var roleResponse = await response.Content.ReadFromJsonAsync<GetRoleDto>();
+            return roleResponse!;
         }
 
-        public async Task<List<Role>> GetRolesByIds(List<string> roleIds)
+        public async Task<List<GetRoleDto>> GetRolesByIds(List<string> roleIds)
         {
-            var roles = new List<Role>();
+            var roles = new List<GetRoleDto>();
             foreach (var id in roleIds)
             {
                 var role = await GetRoleById(id);

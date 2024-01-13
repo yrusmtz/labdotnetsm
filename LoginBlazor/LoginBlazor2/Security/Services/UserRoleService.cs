@@ -1,4 +1,6 @@
-﻿namespace LoginBlazor2.Security.Services;
+﻿using LoginShared.Security.DTOs;
+
+namespace LoginBlazor2.Security.Services;
 
 using System.Net.Http.Json;
 using LoginShared;
@@ -12,48 +14,35 @@ public class UserRoleService
         this.httpClient = httpClient;
     }
 
-    public async Task<UserRole> CreateUserRole(UserRole newUserRole)
+    public async Task AddUserRoleAsync(int userId, int roleId)
     {
-        var response = await httpClient.PostAsJsonAsync("http://localhost:5001/userRoles", newUserRole);
-        var userRole = await response.Content.ReadFromJsonAsync<UserRole>();
-        return userRole!;
+        var response = await httpClient.PostAsJsonAsync($"/users/{userId}/roles", roleId);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to add role {roleId} to user {userId}");
+        }
     }
-
-    public async Task<List<UserRole>> GetUserRoles()
+    
+    public async Task DeleteUserRoleAsync(int userId, int roleId)
     {
-        var userRoles = await httpClient.GetFromJsonAsync<List<UserRole>>("http://localhost:5001/userRoles");
-        return userRoles;
+        var response = await httpClient.DeleteAsync($"/users/{userId}/roles/{roleId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to delete role {roleId} from user {userId}");
+        }
     }
-
-    public async Task<UserRole?> GetUserRole(int userId, int roleId)
+    
+    public async Task<IEnumerable<GetRoleDto>> GetRolesByUserIdAsync(int userId)
     {
-        var userRole =
-            await httpClient.GetFromJsonAsync<UserRole>($"http://localhost:5001/userRoles/{userId}/{roleId}");
-        return userRole;
-    }
-
-    public async Task<UserRole> UpdateUserRole(int userId, int roleId, UserRole updatedUserRole)
-    {
-        var response =
-            await httpClient.PutAsJsonAsync($"http://localhost:5001/userRoles/{userId}/{roleId}", updatedUserRole);
-        var updateUserRole = await response.Content.ReadFromJsonAsync<UserRole>();
-        return updateUserRole;
-    }
-
-    public async Task<List<UserRole>> GetUserRolesByUserId(int userId)
-    {
-        var userRoles = await httpClient.GetFromJsonAsync<List<UserRole>>($"http://localhost:5001/userRoles/{userId}");
-        return userRoles;
-    }
-
-    public async Task<UserRole> AddUserRole(int userId, int roleId)
-    {
-        var newUserRole = new UserRole(userId, roleId);
-        var response = await httpClient.PostAsJsonAsync("http://localhost:5001/userRoles", newUserRole);
-        var userRole = await response.Content.ReadFromJsonAsync<UserRole>();
-        return userRole!;
+        var response = await httpClient.GetAsync($"/users/{userId}/roles");
+        if (response.IsSuccessStatusCode)
+        {
+            var roles = await response.Content.ReadFromJsonAsync<IEnumerable<GetRoleDto>>();
+            return roles!;
+        }
+        else
+        {
+            throw new Exception($"Failed to retrieve roles for user {userId}");
+        }
     }
 }
-
-    
-    
