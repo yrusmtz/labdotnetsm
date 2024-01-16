@@ -2,6 +2,7 @@
 @inject UserService UserService
 @using LoginShared
 @using LoginBlazor2.Security.Services
+@using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 
 @if (user == null)
@@ -18,7 +19,7 @@ else
                 <div class="col-md-6 text-center">
                     <div class="card">
                         <div class="card-body pt-2">
-                            <h3 class="card-title">@user.FullName</h3>
+                            <h3 class="card-title">@user.Name</h3>
                             <hr/>
                             <dl class="row">
                                 <dt class="col-sm-2">Name</dt>
