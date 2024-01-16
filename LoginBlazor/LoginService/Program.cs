@@ -1,5 +1,7 @@
 using LoginService;
 using LoginShared;
+using LoginShared.Security.DTOs;
+using LoginShared.Security.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -15,13 +17,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString); });
+builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlServer(connectionString); });
 
 // Add services to the container.
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<UserRoleService>();
 
-// Add CORS middleware to allow requests from all origins
+// Add CORS middleware to allow requests from all originss
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("OpenCORS", corsPolicyBuilder =>
@@ -68,17 +71,14 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-UserService userService;
-RoleService roleService;
-
-
 // Ensure the database is created.
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    userService = scope.ServiceProvider.GetRequiredService<UserService>();
-    roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
+    var userService = scope.ServiceProvider.GetRequiredService<UserService>();
+    var roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
+    var userRoleService = scope.ServiceProvider.GetRequiredService<UserRoleService>();
     await dbContext.Database.EnsureCreatedAsync();
 }
 
@@ -125,12 +125,12 @@ string GenerateJwtToken(string email)
 }
 
 // Login endpoint
-app.MapPost("/auth/login", async (LoginRequest request) =>
+app.MapPost("/auth/login", async (LoginRequest request, UserService userService) =>
         {
-            User user;
+            UserEntity user;
             try
             {
-                user = await userService.GetUserByEmailAsync(request.Email);
+                user = await userService.TestUserPasswordAsync(request.Email);
             }
             catch (ArgumentException)
             {
@@ -154,24 +154,24 @@ app.MapPost("/auth/login", async (LoginRequest request) =>
         .WithOpenApi();
 
 
-app.MapPost("/users", async (User newUser) =>
+app.MapPost("/users", async (CreateUserDto newUser, UserService userService) =>
         {
-            User createdUser = await userService.CreateUserAsync(newUser);
+            GetUserDto createdUser = await userService.CreateUserAsync(newUser);
             return Results.Created($"/users/{createdUser.Email}", createdUser);
         })
         .WithName("CreateUser")
         .WithOpenApi();
 
-app.MapGet("/users", async () => await userService.GetAllUsersAsync())
+app.MapGet("/users", async (UserService userService) => await userService.GetAllUsersAsync())
         .WithName("GetAllUsers")
         .WithOpenApi();
 
-app.MapGet("/users/{userId}", async (int userId) =>
+app.MapGet("/users/{userId}", async (int userId, UserService userService) =>
 {
-    User user;
+    GetUserDto user;
     try
     {
-        user = await userService.GetUserByIdIfExistAsync(userId);
+        user = await userService.GetUserByIdAsync(userId);
     }
     catch (ArgumentException)
     {
@@ -185,9 +185,9 @@ app.MapGet("/users/{userId}", async (int userId) =>
     return Results.Ok(user);
 });
 
-app.MapPut("/users/{userId}", async (int userId, User updatedUser) =>
+app.MapPut("/users/{userId}", async (int userId, UpdateUserDto updatedUser, UserService userService) =>
         {
-            User user;
+            GetUserDto user;
             try
             {
                 user = await userService.UpdateUserAsync(userId, updatedUser);
@@ -207,7 +207,7 @@ app.MapPut("/users/{userId}", async (int userId, User updatedUser) =>
         .WithOpenApi();
 
 //delete user
-app.MapDelete("/users/{userId}", async (int userId) =>
+app.MapDelete("/users/{userId}", async (int userId, UserService userService) =>
         {
             try
             {
@@ -229,24 +229,24 @@ app.MapDelete("/users/{userId}", async (int userId) =>
         .WithOpenApi();
 
 //endpoints para roles
-app.MapPost("/roles", async (Role newRole) =>
+app.MapPost("/roles", async (CreateRoleDto newRole, RoleService roleService) =>
         {
-            Role createdRole = await roleService.CreateRoleAsync(newRole);
+            var createdRole = await roleService.CreateRoleAsync(newRole);
             return Results.Created($"/roles/{createdRole.Id}", createdRole);
         })
         .WithName("CreateRole")
         .WithOpenApi();
 
-app.MapGet("/roles", async () => await roleService.GetAllRolesAsync())
+app.MapGet("/roles", async (RoleService roleService) => await roleService.GetAllRolesAsync())
         .WithName("GetAllRoles")
         .WithOpenApi();
 
-app.MapGet("/roles/{roleId}", async (int roleId) =>
+app.MapGet("/roles/{roleId}", async (int roleId, RoleService roleService) =>
         {
-            Role role;
+            GetRoleDto role;
             try
             {
-                role = await roleService.GetRoleIfExistAsync(roleId);
+                role = await roleService.GetRoleByCodeAsync(roleId);
             }
             catch (ArgumentException)
             {
@@ -262,9 +262,9 @@ app.MapGet("/roles/{roleId}", async (int roleId) =>
         .WithName("GetRole")
         .WithOpenApi();
 
-app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole) =>
+app.MapPut("/roles/{roleId}", async (int roleId, UpdateRoleDto updatedRole, RoleService roleService) =>
         {
-            Role role;
+            GetRoleDto role;
             try
             {
                 role = await roleService.UpdateRoleAsync(roleId, updatedRole);
@@ -284,49 +284,49 @@ app.MapPut("/roles/{roleId}", async (int roleId, Role updatedRole) =>
         .WithOpenApi();
 
 
-//manejo de roles de usuario
-app.MapPost("/users/{userId}/roles", async (string userId, Role newRole) =>
-        {
-            Role role;
-            try
-            {
-                role = await roleService.GetRoleIfExistAsync(newRole.Id);
-            }
-            catch (ArgumentException)
-            {
-                return Results.NotFound();
-            }
-            catch (Exception e)
-            {
-                return Results.Problem(e.Message);
-            }
-            User user;
-            try
-            {
-                user = await userService.GetUserByIdIfExistAsync(int.Parse(userId));
-            }
-            catch (ArgumentException)
-            {
-                return Results.NotFound();
-            }
-            catch (Exception e)
-            {
-                return Results.Problem(e.Message);
-            }
-
-            User updatedUser = user with { Roles = user.Roles.Append(role).ToList() };
-            await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
-            return Results.Created($"/users/{userId}/roles/{newRole.Id}", newRole);
-        })
+//manejo de roles de usuario,AddUserRoleAsync
+app.MapPost("/users/{userId}/roles",
+                async (string userId, int newRoleId, UserService userService, RoleService roleService,UserRoleService userRoleService) =>
+                {
+                    GetRoleDto role;
+                    try
+                    {
+                        role = await roleService.GetRoleByIdAsync(newRoleId);
+                    }
+                    catch (ArgumentException)
+                    {
+                        return Results.NotFound();
+                    }
+                    catch (Exception e)
+                    {
+                        return Results.Problem(e.Message);
+                    }
+                    GetUserDto user;
+                    try
+                    {
+                        user = await userService.GetUserByIdAsync(int.Parse(userId));
+                    }
+                    catch (ArgumentException)
+                    {
+                        return Results.NotFound();
+                    }
+                    catch (Exception e)
+                    {
+                        return Results.Problem(e.Message);
+                    }
+                    // necesito llamar al servicio y el metodo AddUserRoleAsync
+                    await userRoleService.AddUserRoleAsync(user.Id, role.Id);
+                    return Results.Created($"/users/{userId}/roles/{newRoleId}", newRoleId);
+                })
         .WithName("AddRoleToUser")
         .WithOpenApi();
 
-app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService, UserRoleService userRoleService) =>
         {
-            Role role;
+            GetRoleDto role;
             try
             {
-                role = await roleService.GetRoleIfExistAsync(roleId);
+                role = await roleService.GetRoleByIdAsync(roleId);
             }
             catch (ArgumentException)
             {
@@ -336,10 +336,10 @@ app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =
             {
                 return Results.Problem(e.Message);
             }
-            User user;
+            GetUserDto user;
             try
             {
-                user = await userService.GetUserByIdIfExistAsync(userId);
+                user = await userService.GetUserByIdAsync(userId);
             }
             catch (ArgumentException)
             {
@@ -349,16 +349,211 @@ app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =
             {
                 return Results.Problem(e.Message);
             }
-            if (!user.Roles.Contains(role))
-            {
-                return Results.NotFound();
-            }
-            User updatedUser = user with { Roles = user.Roles.Where(r => r.Id != roleId).ToList() };
-            await userService.UpdateUserAsync(updatedUser.Id, updatedUser);
+           
+            await userRoleService.DeleteUserRoleAsync(user.Id, role.Id);
+            
 
-            return Results.Ok(updatedUser);
+            return Results.Ok(user);
         })
         .WithName("RemoveRoleFromUser")
         .WithOpenApi();
+//
+// //add user to role endpoint
+// // Add user to role endpoint
+// app.MapPost("/users/{userId}/roles/{roleId}", async (
+//                 int userId, 
+//                 int roleId, 
+//                 UserService userService,
+//                 RoleService roleService, 
+//                 UserRoleService userRoleService) =>
+//         {
+//             await userRoleService.AddUserRoleAsync(userId, roleId);
+//             Role role = await roleService.GetRoleIfExistAsync(roleId);
+//             return Results.Created($"/users/{userId}/roles/{roleId}", role);
+//         })
+//         .WithName("AddUserToRole")
+//         .WithOpenApi();
 
+// Delete user from role endpoint
+// app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
+//     {
+//         await userRoleService.DeleteUserRoleAsync(userId, roleId);
+//         return Results.NoContent();
+//     })
+//     .WithName("DeleteUserFromRole")
+//     .WithOpenApi();
+
+// Get user role endpoint
+// app.MapGet("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserRoleService userRoleService) =>
+//         {
+//             Role role = await userRoleService.GetUserRoleAsync(userId, roleId);
+//             return Results.Ok(role);
+//         })
+//         .WithName("GetUserRole")
+//         .WithOpenApi();
+
+// Get user roles by user id endpoint
+app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleService) =>
+        {
+            List<GetRoleDto> roles = await userRoleService.GetUserRolesByUserIdAsync(userId);
+            return Results.Ok(roles);
+        })
+        .WithName("GetUserRolesByUserId")
+        .WithOpenApi();
 app.Run();
+
+
+// // Login endpoint
+// app.MapPost("/auth/login", (LoginRequest request) =>
+//         {
+//             var user = userService.GetUserByEmail(request.Email);
+//             if (user != null && request.Password == user.Password)
+//             {
+//                 // JWT token generation
+//                 var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
+//
+//                 var securityKey = new SymmetricSecurityKey(
+//                         Encoding.UTF8.GetBytes(
+//                                 "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf"));
+//                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+//
+//                 var jwtSecurityToken = new JwtSecurityToken(
+//                         issuer: "https://www.surymartinez.com",
+//                         audience: "Minimal APIs Client",
+//                         claims: claims,
+//                         expires: DateTime.UtcNow.AddHours(1),
+//                         signingCredentials: credentials);
+//
+//                 var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+//
+//                 return Results.Ok(new { AccessToken = accessToken });
+//             }
+//
+//             return Results.BadRequest();
+//         })
+//         .WithName("Login")
+//         .AllowAnonymous()
+//         .WithOpenApi();
+//
+//
+// app.MapPost("/users", (User newUser) =>
+// {
+//     var createdUser = userService.CreateUser(newUser);
+//     return Results.Created($"/users/{createdUser.Email}", createdUser);
+// }).WithName("CreateUser").WithOpenApi();
+//
+// //desde aqui empiezan los endpoints de userRole
+// //nuevo Endpoint POST /users/{userId}/roles/{roleId}
+// app.MapPost("/userRoles", (int userId, int roleId) => { return userRoleService.AddUserRole(userId, roleId); })
+//         .WithName("AddUserRole")
+//         .WithOpenApi();
+//
+//
+// //nuevo Endpoint GET /users/{userId}/roles
+// app.MapGet("/userRoles/{userId}", (int userId) => { return userRoleService.GetUserRolesByUserId(userId); })
+//         .WithName("GetUserRolesByUserId")
+//         .WithOpenApi();
+//
+// //nuevo Endpoint GET /users/{userId}/roles/{roleId}
+// app.MapGet("/userRoles/{userId}/{roleId}", async (int userId, int roleId) =>
+// {
+//     try
+//     {
+//         var userRole = await userRoleService.GetUserRole(userId, roleId);
+//         return (userRole is null)
+//                 ? Results.NotFound($"User Role with user id: {userId} and role id: {roleId} not found.")
+//                 : Results.Ok(userRole);
+//     }
+//     catch (Exception e)
+//     {
+//         return Results.Problem(detail: e.Message, statusCode: 500);
+//     }
+// }).WithName("GetUserRole").WithOpenApi();
+//
+//
+// //nuevo Endpoint DELETE /users/{userId}/roles/{roleId}
+// app.MapDelete("/userRoles/{userId}/{roleId}",
+//                 (int userId, int roleId) => { return userRoleService.DeleteUserRole(userId, roleId); })
+//         .WithName("DeleteUserRole")
+//         .WithOpenApi();
+//
+// //nuevo Endpoint PUT /users/{userId}/roles/{roleId}
+// app.MapPut("/userRoles/{userId}/{roleId}",
+//         (int userId, int roleId, UserRole updatedUserRole) =>
+//         {
+//             return userRoleService.UpdateUserRole(userId, roleId, updatedUserRole);
+//         }).WithName("UpdateUserRole").WithOpenApi();
+//
+//
+// //este no lo modifique 
+// app.MapGet("/users", () => userService.GetAllUsers()).WithName("GetAllUsers").WithOpenApi();
+//
+// app.MapGet("/users/{userId}", (int userId) =>
+// {
+//     var user = userService.GetUserById(userId);
+//     if (user == null)
+//     {
+//         return Results.NotFound($"User with ID {userId} not found.");
+//     }
+//
+//     return Results.Ok(user);
+// });
+//
+// app.MapPut("/users/{userId}", (int userId, User updatedUser) =>
+// {
+//     var user = userService.UpdateUser(userId, updatedUser);
+//     if (user == null)
+//     {
+//         return Results.NotFound($"User with ID {userId} not found.");
+//     }
+//
+//     return Results.Ok(user);
+// }).WithName("UpdateUserPassword").WithOpenApi();
+//
+// //delete user
+// app.MapDelete("/users/{userId}", (string userId) =>
+// {
+//     var user = userService.DeleteUser(userId);
+//     if (user == null)
+//     {
+//         return Results.NotFound($"User with ID {userId} not found.");
+//     }
+//
+//     return Results.Ok(user);
+// }).RequireAuthorization().WithName("DeleteUser").WithOpenApi();
+//
+// //roles
+// //endpoints para roles
+// app.MapPost("/roles", (Role newRole) =>
+// {
+//     var createdRole = roleService.CreateRole(newRole);
+//     return Results.Created($"/roles/{createdRole.Code}", createdRole);
+// }).WithName("CreateRole").WithOpenApi();
+//
+// app.MapGet("/roles", () => roleService.GetAllRoles()).WithName("GetAllRoles").WithOpenApi();
+//
+// app.MapGet("/roles/{id:int}", (int id) =>
+// {
+//     var role = roleService.GetRoleById(id);
+//     if (role == null)
+//     {
+//         return Results.NotFound($"Role with id {id} not found.");
+//     }
+//
+//     return Results.Ok(role);
+// }).WithName("GetRole").WithOpenApi();
+//
+// app.MapPut("/roles/{id:int}", (int id, Role updatedRole) =>
+// {
+//     try
+//     {
+//         var role = roleService.UpdateRole(id, updatedRole);
+//         return Results.Ok(role);
+//     }
+//     catch (KeyNotFoundException)
+//     {
+//         return Results.NotFound($"Role with id {id} not found.");
+//     }
+// }).WithName("UpdateRole").WithOpenApi();
+//
+// app.Run();

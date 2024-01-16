@@ -1,34 +1,81 @@
 using LoginShared;
+using LoginShared.Security.DTOs;
+using LoginShared.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoginService
 {
     public class UserService(AppDbContext context)
     {
-
-        public async Task<User> CreateUserAsync(User newUser)
+        public async Task<GetUserDto> CreateUserAsync(CreateUserDto newUserDto)
         {
+            string defaultPassword = "12345678";
+            var newUser = UserEntity.CreateNewUser(
+                    newUserDto.Name,
+                    newUserDto.LastName,
+                    newUserDto.Department,
+                    newUserDto.Puesto,
+                    newUserDto.Email,
+                    defaultPassword);
             context.Users.Add(newUser);
             await context.SaveChangesAsync();
-            return newUser;
+            var getUserDto = new GetUserDto
+            (
+                    newUser.Id,
+                    newUser.Name,
+                    newUser.LastName,
+                    newUser.Department,
+                    newUser.Email,
+                    newUser.Puesto
+            );
+            return getUserDto;
         }
 
-        public async Task<List<User>> GetAllUsersAsync()
+        public async Task<List<GetUserDto>> GetAllUsersAsync()
         {
-            return await context.Users.ToListAsync();
+            var users = await context.Users.ToListAsync();
+            return users.Select(u => new GetUserDto
+            (
+                    u.Id,
+                    u.Name,
+                    u.LastName,
+                    u.Department,
+                    u.Email,
+                    u.Puesto
+            )).ToList();
         }
 
-        public async Task<User> GetUserByEmailAsync(string email)
+        public async Task<GetUserDto> GetUserByEmailAsync(string email)
         {
-            return await context.Users.SingleAsync(u => u.Email == email);
+            var user = await context.Users.SingleAsync(u => u.Email == email);
+            return new GetUserDto
+            (
+                    user.Id,
+                    user.Name,
+                    user.LastName,
+                    user.Department,
+                    user.Email,
+                    user.Puesto
+            );
+            
         }
 
-        public async Task<User> UpdateUserPasswordAsync(int userId, User updatedUser)
+        public async Task<GetUserDto> UpdateUserPasswordAsync(int userId, User updatedUser)
         {
-            await GetUserByIdIfExistAsync(userId);
-            context.Users.Update(updatedUser);
+            var user = await GetUserByIdIfExistAsync(userId);
+            user.Password = updatedUser.Password;
+            context.Users.Update(user);
             await context.SaveChangesAsync();
-            return updatedUser;
+            var getUserDto = new GetUserDto
+            (
+                    user.Id,
+                    user.Name,
+                    user.LastName,
+                    user.Department,
+                    user.Email,
+                    user.Puesto
+            );
+            return getUserDto;
         }
 
         public async Task<Boolean> DeleteUserAsync(int userId)
@@ -39,22 +86,54 @@ namespace LoginService
             return true;
         }
 
-        public async Task<User> UpdateUserAsync(int userId, User updatedUser)
+        public async Task<GetUserDto> UpdateUserAsync(int userId, UpdateUserDto updatedRole)
         {
-            if (userId != updatedUser.Id)
+            if (userId != updatedRole.Id)
             {
-                throw new ArgumentException($"User ID {userId} does not match user ID {updatedUser.Id}.");
+                throw new ArgumentException($"User ID {userId} does not match user ID {updatedRole.Id}.");
             }
 
 
-            await GetUserByIdIfExistAsync(userId);
+            var user = await GetUserByIdIfExistAsync(userId);
+            
+            // TODO: Update user properties in a more elegant way.
+            user.Name = updatedRole.Name;
+            user.LastName = updatedRole.LastName;
+            user.Department = updatedRole.Department;
+            user.Email = updatedRole.Email;
+            // user.Password = updatedUser.Password;
+            user.Puesto = updatedRole.Puesto;
 
-            context.Users.Update(updatedUser);
+            context.Users.Update(user);
             await context.SaveChangesAsync();
-            return updatedUser;
+            var getUserDto = new GetUserDto
+            (
+                    user.Id,
+                    user.Name,
+                    user.LastName,
+                    user.Department,
+                    user.Email,
+                    user.Puesto
+            );
+            return getUserDto;
+        }
+        
+        public async Task<GetUserDto> GetUserByIdAsync(int userId)
+        {
+            var user = await GetUserByIdIfExistAsync(userId);
+            var getUserDto = new GetUserDto
+            (
+                    user.Id,
+                    user.Name,
+                    user.LastName,
+                    user.Department,
+                    user.Email,
+                    user.Puesto
+            );
+            return getUserDto;
         }
 
-        public async Task<User> GetUserByIdIfExistAsync(int userId)
+        public async Task<UserEntity> GetUserByIdIfExistAsync(int userId)
         {
             try
             {
@@ -64,6 +143,12 @@ namespace LoginService
             {
                 throw new ArgumentException($"User with ID {userId} not found.");
             }
+        }
+        
+        public async Task<UserEntity> TestUserPasswordAsync(string email)
+        {
+            var user = await context.Users.SingleAsync(u => u.Email == email);
+            return user;
         }
     }
 }
