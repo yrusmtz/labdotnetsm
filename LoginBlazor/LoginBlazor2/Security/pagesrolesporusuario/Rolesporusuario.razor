@@ -1,89 +1,93 @@
 ﻿@page "/security/RolesporUsuario"
 @using LoginShared
 @inject UserRoleService UserRoleService
-@inject UserService UserService
 @inject RoleService RoleService
-@inject HttpClient Http
-@using LoginBlazor2.Security.Services
+@inject UserService UserService
 @using System.Net
+@using LoginBlazor2.Security.Services
 @using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 
-<h3>Lista de Usuarios</h3>
+<div class="content__header content__boxed overlapping">
+    <div class="content__wrap">
+        <div class="d-md-flex align-items-end">
+            <div class="me-auto">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="./index.html">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Roles por Usuario</li>
+                    </ol>
+                </nav>
+                <!-- END : Breadcrumb -->
+                <h1 class="page-title mb-0 mt-2">Roles por Usuario</h1>
+            </div>
+            <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
+                        @onclick="() => NavigateToUserRoleEdit(0)">
+                    <i class="pli-pen-5 fs-5 me-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-@if (users != null)
-{
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Usuario</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in users)
+<div class="content__boxed">
+    <div class="content__wrap">
+        <div class="row mt-3">
+            @if (roles == null)
             {
-                <tr>
-                    <td>@user.Id</td>
-                    <td>@user.Name</td>
-                </tr>
+                <div class="col-12">
+                    <p>Loading...</p>
+                </div>
             }
-        </tbody>
-    </table>
-}
-
-<h3>Lista de Roles</h3>
-
-@if (roles != null)
-{
-    <table>
-        <thead>
-            <tr>
-                <th>code</th>
-                <th>descripcion</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var role in roles)
+            else
             {
-                <tr>
-                    <td>@role.Code</td>
-                    <td>@role.Description</td>
-                </tr>
+                <div>
+                    <h3>Asignar rol a un usuario</h3>
+                    <div>
+                        <label>
+                            Usuario:
+                            <select @bind="selectedUserId">
+                                @foreach (var user in users)
+                                {
+                                    <option value="@user.Id">@user.Name</option>
+                                }
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Rol:
+                            <select @bind="selectedRoleId">
+                                @foreach (var role in roles)
+                                {
+                                    <option value="@role.Id">@role.Code</option>
+                                }
+                            </select>
+                        </label>
+                    </div>
+                    <button type="button" @onclick="AssignRoleToUser">Asignar</button>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p>@errorMessage</p>
+                    }
+                </div>
             }
-        </tbody>
-    </table>
-}
+        </div>
+    </div>
+</div>
 
-<h3>Asignar Rol a Usuario</h3>
-
-Seleccione usuario:
-<select @bind="selectedUserId">
-    @foreach (var user in users)
-    {
-        <option value="@user.Id">@user.Name</option>
-    }
-</select>
-
-Seleccione rol:
-<select @bind="selectedRoleId">
-    @foreach (var role in roles)
-    {
-        <option value="@role.Code">@role.Description</option>
-    }
-</select>
-
-<button @onclick="AssignRoleToUser">Asignar</button>
-
-<p>@errorMessage</p>
 @code {
-    int selectedUserId;
-    int selectedRoleId;
+    private int selectedUserId;
+    private int selectedRoleId;
 
-    List<GetUserDto> users;
-    List<GetRoleDto> roles;
+    private List<GetUserDto> users;
+    private List<GetRoleDto> roles;
 
-    string errorMessage = string.Empty;
+    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,20 +101,15 @@ Seleccione rol:
         {
             await UserRoleService.AddUserRoleAsync(selectedUserId, selectedRoleId);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        catch (Exception ex)
         {
-            errorMessage = "El Rol ya estaba asignado al Usuario.";
-        }
-        catch (HttpRequestException ex)
-        {
-            errorMessage = "La solicitud falló. Inténtalo de nuevo.";
+            errorMessage = $"Error: {ex.Message}";
         }
     }
-    private void NavigateToRolesporUsuario()
+
+    private void NavigateToUserRoleEdit(int Id)
     {
-        NavigationManager.NavigateTo("/security/RolesporUsuario");
+        NavigationManager.NavigateTo("/Security/EditUserRole/" + Id);
     }
-   
-    
 
 }
