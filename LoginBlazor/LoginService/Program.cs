@@ -246,7 +246,7 @@ app.MapGet("/roles/{roleId}", async (int roleId, RoleService roleService) =>
             GetRoleDto role;
             try
             {
-                role = await roleService.GetRoleByCodeAsync(roleId);
+                role = await roleService.GetRoleByIdAsync(roleId);
             }
             catch (ArgumentException)
             {
@@ -286,40 +286,40 @@ app.MapPut("/roles/{roleId}", async (int roleId, UpdateRoleDto updatedRole, Role
 
 //manejo de roles de usuario,AddUserRoleAsync
 app.MapPost("/users/{userId}/roles",
-                async (string userId, int newRoleId, UserService userService, RoleService roleService,UserRoleService userRoleService) =>
-                {
-                    GetRoleDto role;
-                    try
-                    {
-                        role = await roleService.GetRoleByIdAsync(newRoleId);
-                    }
-                    catch (ArgumentException)
-                    {
-                        return Results.NotFound();
-                    }
-                    catch (Exception e)
-                    {
-                        return Results.Problem(e.Message);
-                    }
-                    GetUserDto user;
-                    try
-                    {
-                        user = await userService.GetUserByIdAsync(int.Parse(userId));
-                    }
-                    catch (ArgumentException)
-                    {
-                        return Results.NotFound();
-                    }
-                    catch (Exception e)
-                    {
-                        return Results.Problem(e.Message);
-                    }
-                    // necesito llamar al servicio y el metodo AddUserRoleAsync
-                    await userRoleService.AddUserRoleAsync(user.Id, role.Id);
-                    return Results.Created($"/users/{userId}/roles/{newRoleId}", newRoleId);
-                })
-        .WithName("AddRoleToUser")
-        .WithOpenApi();
+    async (string userId, AssignRoleToUserDto assignRoleToUserDto, UserService userService, RoleService roleService, UserRoleService userRoleService) =>
+    {
+        GetRoleDto role;
+        try
+        {
+            role = await roleService.GetRoleByIdAsync(assignRoleToUserDto.RoleId);
+        }
+        catch (ArgumentException)
+        {
+            return Results.NotFound();
+        }
+        catch (Exception e)
+        {
+            return Results.Problem(e.Message);
+        }
+        GetUserDto user;
+        try
+        {
+            user = await userService.GetUserByIdAsync(int.Parse(userId));
+        }
+        catch (ArgumentException)
+        {
+            return Results.NotFound();
+        }
+        catch (Exception e)
+        {
+            return Results.Problem(e.Message);
+        }
+        // Call the service and the method AddUserRoleAsync
+        await userRoleService.AddUserRoleAsync(user.Id, role.Id);
+        return Results.Created($"/users/{userId}/roles/{assignRoleToUserDto.RoleId}", role);
+    })
+    .WithName("AddRoleToUser")
+    .WithOpenApi();
 
 app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserService userService, RoleService roleService, UserRoleService userRoleService) =>
         {

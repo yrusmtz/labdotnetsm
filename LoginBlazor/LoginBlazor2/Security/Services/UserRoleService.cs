@@ -12,11 +12,13 @@ public class UserRoleService
     public UserRoleService(HttpClient httpClient)
     {
         this.httpClient = httpClient;
+        this.httpClient.BaseAddress = new Uri("http://localhost:5001/api");
     }
 
     public async Task AddUserRoleAsync(int userId, int roleId)
     {
-        var response = await httpClient.PostAsJsonAsync($"/users/{userId}/roles", roleId);
+        var assignRoleToUserDto = new AssignRoleToUserDto(userId, roleId);
+        var response = await httpClient.PostAsJsonAsync($"/users/{userId}/roles", assignRoleToUserDto);
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception($"Failed to add role {roleId} to user {userId}");
