@@ -1,6 +1,6 @@
-﻿@page "/security/RolesPantalla"
+﻿@page "/security/PantallaRoles"
 @inject RoleService RoleService
-@inject RolePantallaService RolePantallaService
+@inject PantallaRoleService PantallaRoleService
 
 @using LoginShared.Security.DTOs
 @using LoginBlazor2.Security.Services
@@ -15,11 +15,11 @@
                         <li class="breadcrumb-item">
                             <a href="/">Home</a>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page">Roles por pantalla</li>
+                        <li class="breadcrumb-item active" aria-current="page">Pantalla por roles</li>
                     </ol>
                 </nav>
                 <!-- END : Breadcrumb -->
-                <h1 class="page-title mb-0 mt-2">Roles por pantalla</h1>
+                <h1 class="page-title mb-0 mt-2">Pantalla por Roles</h1>
             </div>
             <div class="d-flex justify-content-end gap-1">
                 <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
@@ -67,11 +67,11 @@
                             </select>
                         </label>
                     </div>
-                    @* <button type="button" @onclick="AssignRoleToUser">Asignar</button> *@
-                    @* @if (!string.IsNullOrEmpty(errorMessage)) *@
-                    @* { *@
-                    @*     <p>@errorMessage</p> *@
-                    @* } *@
+                    <button type="button" @onclick="AddRolePantalla">Asignar</button>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p>@errorMessage</p>
+                    }
                 </div>
             }
         </div>
@@ -82,21 +82,30 @@
 
 
 @code {
-    private int selectedRoleId;
     private int selectedPantallaId;
-    
+    private int selectedRoleId;
     private List<GetRoleDto> roles;
     private List<GetPantallaDto> pantallas;
     
+    private string errorMessage = string.Empty;
+    
     protected   override async Task OnInitializedAsync()
     {
+        pantallas = await PantallaRoleService.GetPantallas();
         roles = await RoleService.GetRoles();
-        pantallas = await RolePantallaService.GetPantallas();
     }
     
     private async Task AddRolePantalla()
     {
-        //await RolePantallaService.AddRolePantalla(selectedRoleId, selectedPantallaId);
+        
+        try
+        {
+            await PantallaRoleService.AddPantallaRole( selectedPantallaId,selectedRoleId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
     }
     
    //la tabla de muchos a muchos
