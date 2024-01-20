@@ -23,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlServer(co
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<UserRoleService>();
+builder.Services.AddScoped<PantallaService>();
 
 // Add CORS middleware to allow requests from all originss
 builder.Services.AddCors(options =>
@@ -79,6 +80,7 @@ using (var scope = app.Services.CreateScope())
     var userService = scope.ServiceProvider.GetRequiredService<UserService>();
     var roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
     var userRoleService = scope.ServiceProvider.GetRequiredService<UserRoleService>();
+    var pantallasService = scope.ServiceProvider.GetRequiredService<PantallaService>();
     await dbContext.Database.EnsureCreatedAsync();
 }
 
@@ -357,40 +359,7 @@ app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, U
         })
         .WithName("RemoveRoleFromUser")
         .WithOpenApi();
-//
-// //add user to role endpoint
-// // Add user to role endpoint
-// app.MapPost("/users/{userId}/roles/{roleId}", async (
-//                 int userId, 
-//                 int roleId, 
-//                 UserService userService,
-//                 RoleService roleService, 
-//                 UserRoleService userRoleService) =>
-//         {
-//             await userRoleService.AddUserRoleAsync(userId, roleId);
-//             Role role = await roleService.GetRoleIfExistAsync(roleId);
-//             return Results.Created($"/users/{userId}/roles/{roleId}", role);
-//         })
-//         .WithName("AddUserToRole")
-//         .WithOpenApi();
 
-// Delete user from role endpoint
-// app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId) =>
-//     {
-//         await userRoleService.DeleteUserRoleAsync(userId, roleId);
-//         return Results.NoContent();
-//     })
-//     .WithName("DeleteUserFromRole")
-//     .WithOpenApi();
-
-// Get user role endpoint
-// app.MapGet("/users/{userId}/roles/{roleId}", async (int userId, int roleId, UserRoleService userRoleService) =>
-//         {
-//             Role role = await userRoleService.GetUserRoleAsync(userId, roleId);
-//             return Results.Ok(role);
-//         })
-//         .WithName("GetUserRole")
-//         .WithOpenApi();
 
 // Get user roles by user id endpoint
 app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleService) =>
@@ -401,6 +370,13 @@ app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleS
         .WithName("GetUserRolesByUserId")
         .WithOpenApi();
 app.Run();
+
+//enpoint para pantallas
+app.MapGet("/pantallas", async (PantallaService pantallaService) => await pantallaService.GetAllPantallasAsync())
+        .WithName("GetAllPantallas")
+        .WithOpenApi();
+app.Run();
+
 
 
 // // Login endpoint
@@ -485,75 +461,3 @@ app.Run();
 //         }).WithName("UpdateUserRole").WithOpenApi();
 //
 //
-// //este no lo modifique 
-// app.MapGet("/users", () => userService.GetAllUsers()).WithName("GetAllUsers").WithOpenApi();
-//
-// app.MapGet("/users/{userId}", (int userId) =>
-// {
-//     var user = userService.GetUserById(userId);
-//     if (user == null)
-//     {
-//         return Results.NotFound($"User with ID {userId} not found.");
-//     }
-//
-//     return Results.Ok(user);
-// });
-//
-// app.MapPut("/users/{userId}", (int userId, User updatedUser) =>
-// {
-//     var user = userService.UpdateUser(userId, updatedUser);
-//     if (user == null)
-//     {
-//         return Results.NotFound($"User with ID {userId} not found.");
-//     }
-//
-//     return Results.Ok(user);
-// }).WithName("UpdateUserPassword").WithOpenApi();
-//
-// //delete user
-// app.MapDelete("/users/{userId}", (string userId) =>
-// {
-//     var user = userService.DeleteUser(userId);
-//     if (user == null)
-//     {
-//         return Results.NotFound($"User with ID {userId} not found.");
-//     }
-//
-//     return Results.Ok(user);
-// }).RequireAuthorization().WithName("DeleteUser").WithOpenApi();
-//
-// //roles
-// //endpoints para roles
-// app.MapPost("/roles", (Role newRole) =>
-// {
-//     var createdRole = roleService.CreateRole(newRole);
-//     return Results.Created($"/roles/{createdRole.Code}", createdRole);
-// }).WithName("CreateRole").WithOpenApi();
-//
-// app.MapGet("/roles", () => roleService.GetAllRoles()).WithName("GetAllRoles").WithOpenApi();
-//
-// app.MapGet("/roles/{id:int}", (int id) =>
-// {
-//     var role = roleService.GetRoleById(id);
-//     if (role == null)
-//     {
-//         return Results.NotFound($"Role with id {id} not found.");
-//     }
-//
-//     return Results.Ok(role);
-// }).WithName("GetRole").WithOpenApi();
-//
-// app.MapPut("/roles/{id:int}", (int id, Role updatedRole) =>
-// {
-//     try
-//     {
-//         var role = roleService.UpdateRole(id, updatedRole);
-//         return Results.Ok(role);
-//     }
-//     catch (KeyNotFoundException)
-//     {
-//         return Results.NotFound($"Role with id {id} not found.");
-//     }
-// }).WithName("UpdateRole").WithOpenApi();
-//
-// app.Run();
