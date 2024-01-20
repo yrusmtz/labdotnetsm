@@ -1,0 +1,105 @@
+﻿@page "/security/RolesPantalla"
+@inject RoleService RoleService
+@inject RolePantallaService RolePantallaService
+
+@using LoginShared.Security.DTOs
+@using LoginBlazor2.Security.Services
+
+<div class="content__header content__boxed overlapping">
+    <div class="content__wrap">
+        <div class="d-md-flex align-items-end">
+            <div class="me-auto">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="/">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Roles por pantalla</li>
+                    </ol>
+                </nav>
+                <!-- END : Breadcrumb -->
+                <h1 class="page-title mb-0 mt-2">Roles por pantalla</h1>
+            </div>
+            <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
+                       >
+                    <i class="pli-pen-5 fs-5 me-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content__boxed">
+    <div class="content__wrap">
+        <div class="row mt-3">
+            @if (roles == null)
+            {
+                <div class="col-12">
+                    <p>Loading...</p>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <h3>Asignar una pantalla a un rol</h3>
+                    <div>
+                        <label>
+                            pantalla:
+                            <select @bind="selectedPantallaId">
+                                @foreach (var pantalla in pantallas)
+                                {
+                                    <option value="@pantalla.Id">@pantalla.Descripcion</option>
+                                }
+                               
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Rol:
+                            <select @bind="selectedRoleId">
+                                @foreach (var role in roles)
+                                {
+                                    <option value="@role.Id">@role.Description</option>
+                                }
+                            </select>
+                        </label>
+                    </div>
+                    @* <button type="button" @onclick="AssignRoleToUser">Asignar</button> *@
+                    @* @if (!string.IsNullOrEmpty(errorMessage)) *@
+                    @* { *@
+                    @*     <p>@errorMessage</p> *@
+                    @* } *@
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    private int selectedRoleId;
+    private int selectedPantallaId;
+    
+    private List<GetRoleDto> roles;
+    private List<GetPantallaDto> pantallas;
+    
+    protected   override async Task OnInitializedAsync()
+    {
+        roles = await RoleService.GetRoles();
+        pantallas = await RolePantallaService.GetPantallas();
+    }
+    
+    private async Task AddRolePantalla()
+    {
+        //await RolePantallaService.AddRolePantalla(selectedRoleId, selectedPantallaId);
+    }
+    
+   //la tabla de muchos a muchos
+   
+   // asignar un rol a una pantalla
+}

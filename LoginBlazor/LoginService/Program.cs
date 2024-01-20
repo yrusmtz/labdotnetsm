@@ -369,7 +369,7 @@ app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleS
         })
         .WithName("GetUserRolesByUserId")
         .WithOpenApi();
-app.Run();
+
 
 //enpoint para pantallas
 app.MapGet("/pantallas", async (PantallaService pantallaService) => await pantallaService.GetAllPantallasAsync())

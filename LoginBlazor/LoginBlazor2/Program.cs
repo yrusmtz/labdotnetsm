@@ -21,4 +21,5 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddHttpClient<UserService>(); 
 builder.Services.AddHttpClient<RoleService>();
 builder.Services.AddHttpClient<UserRoleService>();
+builder.Services.AddHttpClient<RolePantallaService>();
 await builder.Build().RunAsync();

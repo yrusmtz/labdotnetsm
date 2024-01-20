@@ -16,12 +16,12 @@ public class AppDbContext : DbContext
     public DbSet<UserRoleEntity> UserRoles { get; set; }
     public DbSet<PantallaEntity> Pantallas { get; set; }
     
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     modelBuilder.Entity<UserEntity>().ToTable("Users");
-    //     modelBuilder.Entity<RoleEntity>().ToTable("Roles");
-    //     modelBuilder.Entity<UserRoleEntity>().ToTable("UserRoles");
-    //     modelBuilder.Entity<PantallaEntity>().ToTable("Pantallas").HasData(PantallaData.pantallas);
-    //     
-    // }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserEntity>().ToTable("Users");
+        modelBuilder.Entity<RoleEntity>().ToTable("Roles");
+        modelBuilder.Entity<UserRoleEntity>().ToTable("UserRoles");
+        modelBuilder.Entity<PantallaEntity>().ToTable("Pantallas").HasData(PantallaData.pantallas);
+        
+    }
 }
