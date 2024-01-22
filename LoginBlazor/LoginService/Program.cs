@@ -24,6 +24,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<UserRoleService>();
 builder.Services.AddScoped<PantallaService>();
+builder.Services.AddScoped<PantallaRoleService>();
 
 // Add CORS middleware to allow requests from all originss
 builder.Services.AddCors(options =>
@@ -81,6 +82,7 @@ using (var scope = app.Services.CreateScope())
     var roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
     var userRoleService = scope.ServiceProvider.GetRequiredService<UserRoleService>();
     var pantallasService = scope.ServiceProvider.GetRequiredService<PantallaService>();
+    var pantallaRoleService = scope.ServiceProvider.GetRequiredService<PantallaRoleService>();
     await dbContext.Database.EnsureCreatedAsync();
 }
 
@@ -375,9 +377,45 @@ app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleS
 app.MapGet("/pantallas", async (PantallaService pantallaService) => await pantallaService.GetAllPantallasAsync())
         .WithName("GetAllPantallas")
         .WithOpenApi();
+
+//asignar pantallas a roles
+app.MapPost("/roles/{roleId}/pantallas",
+    async (string roleId, AssignPantallaToRoleDto assignPantallaToRoleDto, RoleService roleService, PantallaService pantallaService, PantallaRoleService pantallaRoleService) =>
+    {
+        GetPantallaDto pantalla;
+        try
+        {
+            pantalla = await pantallaService.GetPantallaByIdAsync(assignPantallaToRoleDto.PantallaId);
+        }
+        catch (ArgumentException)
+        {
+            return Results.NotFound();
+        }
+        catch (Exception e)
+        {
+            return Results.Problem(e.Message);
+        }
+        GetRoleDto role;
+        try
+        {
+            role = await roleService.GetRoleByIdAsync(int.Parse(roleId));
+        }
+        catch (ArgumentException)
+        {
+            return Results.NotFound();
+        }
+        catch (Exception e)
+        {
+            return Results.Problem(e.Message);
+        }
+        // Call the service and the method AddUserRoleAsync
+        await pantallaRoleService.AddPantallaRoleAsync(pantalla.Id, role.Id);
+        return Results.Created($"/roles/{roleId}/pantallas/{assignPantallaToRoleDto.PantallaId}", pantalla);
+    })
+    .WithName("AddPantallaToRole")
+    .WithOpenApi();
+
 app.Run();
-
-
 
 // // Login endpoint
 // app.MapPost("/auth/login", (LoginRequest request) =>
