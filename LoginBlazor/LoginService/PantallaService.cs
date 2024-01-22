@@ -22,19 +22,4 @@ public class PantallaService(AppDbContext context)
             p.Estado
         )).ToList();
     }
-    
-    //GetPantallaByIdAsync
-    public async Task<GetPantallaDto> GetPantallaByIdAsync(int id)
-    {
-        var pantalla = await context.Pantallas.FindAsync(id);
-        return new GetPantallaDto
-        (
-            pantalla.Id,
-            pantalla.Codigo,
-            pantalla.Descripcion,
-            pantalla.Estado
-        );
-    }
 }
-
-//

@@ -15,7 +15,6 @@ public class AppDbContext : DbContext
     public DbSet<RoleEntity> Roles { get; set; }
     public DbSet<UserRoleEntity> UserRoles { get; set; }
     public DbSet<PantallaEntity> Pantallas { get; set; }
-    public DbSet<PantallaRoleEntity> PantallaRoles { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,6 +22,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<RoleEntity>().ToTable("Roles");
         modelBuilder.Entity<UserRoleEntity>().ToTable("UserRoles");
         modelBuilder.Entity<PantallaEntity>().ToTable("Pantallas").HasData(PantallaData.pantallas);
-        modelBuilder.Entity<PantallaRoleEntity>().ToTable("PantallaRoles");
+        
     }
 }
