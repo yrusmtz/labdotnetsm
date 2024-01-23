@@ -20,4 +20,8 @@
       <PackageReference Include="Serilog" Version="3.1.2-dev-02097" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="docs\images\" />
+    </ItemGroup>
+
 </Project>

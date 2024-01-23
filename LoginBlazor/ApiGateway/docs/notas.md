@@ -1,5 +1,13 @@
-{
-    "Routes": [
+# Pasos tomados
+
+la configuracion fue basada en https://github.com/abd123al/aspnetrun-microservices-dotnet-good/tree/master/src/WebApps/AspnetRunBasics
+
+Las rutas fueron configuradas para los ambientes locales dev y produccion utilizando la ayuda de github copilot, referenciando la api y las rutas fue solicitado la creacion de las rutas.
+
+Based on the Login Service, you can add the following routes to your Ocelot API Gateway configuration.
+
+```json
+"Routes": [
         {
             "DownstreamPathTemplate": "/auth/login",
             "DownstreamScheme": "http",
@@ -97,8 +105,10 @@
             "UpstreamHttpMethod": [ "POST" ]
         }
         
-  ],
-  "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5009"
-  }
-}
+  ]
+```
+Uso, correr com en la figura ![Correr](./images/run project.png).
+
+Si funciona bien debe de aparecer la siguiente figura ![Correr](./images/corriendo.png).
+
+Si tanto los servicios como gateway esta corriendo puede ser probado en postman, ![Postman](./images/test postman.png).

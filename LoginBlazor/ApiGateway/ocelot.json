@@ -3,7 +3,7 @@
     //Security API
     {
       "Name": "Security",
-      "Url": "/api/security",
+      "Url": "/api/v1/security",
       "SwaggerUrl": "/swagger/v1/swagger.json"
     },
     
