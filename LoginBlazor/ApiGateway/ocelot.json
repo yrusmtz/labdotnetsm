@@ -1,0 +1,14 @@
+{
+  "Routes": [
+    //Security API
+    {
+      "Name": "Security",
+      "Url": "/api/security",
+      "SwaggerUrl": "/swagger/v1/swagger.json"
+    },
+    
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5010"
+  }
+}
