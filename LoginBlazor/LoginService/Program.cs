@@ -491,4 +491,58 @@ app.MapPost("/sucursales/{sucursalId}/roles",
     .WithName("AddRoleToSucursal")
     .WithOpenApi();
 
+//CreatePatrocinadorAsync(CrearPatrocinadorDto
+app.MapPost("/patrocinadores", async (CreatePatrocinadorDto newPatrocinador, PatrocinadorService patrocinadorService) =>
+        {
+            GetPatrocinadorDto createdPatrocinador = await patrocinadorService.CreatePatrocinadorAsync(newPatrocinador);
+            return Results.Created($"/patrocinadores/{createdPatrocinador.Id}", createdPatrocinador);
+        })
+        .WithName("CreatePatrocinador")
+        .WithOpenApi();
+
+//UpdatePatrocinadorAsync(UpdatePatrocinadorDto
+app.MapPut("/patrocinadores/{patrocinadorId}", async (int patrocinadorId, UpdatePatrocinadorDto updatedPatrocinador, PatrocinadorService patrocinadorService) =>
+        {
+            GetPatrocinadorDto patrocinador;
+            try
+            {
+                patrocinador = await patrocinadorService.UpdatePatrocinadorAsync(patrocinadorId, updatedPatrocinador);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+
+            return Results.Ok(patrocinador);
+        })
+        .WithName("UpdatePatrocinador")
+        .WithOpenApi();
+//BorrarPatrocinadorAsync(int patrocinadorId
+app.MapDelete("/patrocinadores/{patrocinadorId}", async (int patrocinadorId, PatrocinadorService patrocinadorService) =>
+        {
+            try
+            {
+                await patrocinadorService.DeletePatrocinadorAsync(patrocinadorId);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+
+            return Results.Ok();
+        })
+        .WithName("DeletePatrocinador")
+        .WithOpenApi();
+
+
+
+
 app.Run();

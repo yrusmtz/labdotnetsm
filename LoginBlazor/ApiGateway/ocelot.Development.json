@@ -95,6 +95,31 @@
             ],
             "UpstreamPathTemplate": "/api/v1/Security/roles/{roleId}/pantallas",
             "UpstreamHttpMethod": [ "POST" ]
+        },
+
+        {
+            "DownstreamPathTemplate": "/api/patrocinadores/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/patrocinadores/{id}",
+            "UpstreamHttpMethod": [ "Put", "Delete" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/patrocinadores",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/patrocinadores",
+            "UpstreamHttpMethod": [ "Post" ]
         }
         
   ],

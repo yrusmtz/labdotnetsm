@@ -1,11 +1,11 @@
 {
   "Routes": [
-    //Security API
+    
     {
       "Name": "Security",
       "Url": "/api/v1/security",
       "SwaggerUrl": "/swagger/v1/swagger.json"
-    },
+    }
     
   ],
   "GlobalConfiguration": {

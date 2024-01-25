@@ -17,7 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<PantallaEntity> Pantallas { get; set; }
     public DbSet<PantallaRoleEntity> PantallaRoles { get; set; }
     
-    public DbSet<PatrocinadorEntity> Patrocinadores { get; set; }
+    public DbSet<PatrocinadorEntity?> Patrocinadores { get; set; }
     public DbSet<PatrocinadorRoleEntity> PatrocinadorRoles { get; set; }
     public DbSet<SucursalEntity> Sucursales { get; set; }
     public DbSet<SucursalRoleEntity> SucursalRoles { get; set; }
