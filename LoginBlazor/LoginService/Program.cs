@@ -491,6 +491,61 @@ app.MapPost("/sucursales/{sucursalId}/roles",
     .WithName("AddRoleToSucursal")
     .WithOpenApi();
 
+//CreateSucursalAsync(CreateSucursalDto
+app.MapPost("/sucursales", async (CreateSucursalDto newSucursal, SucursalService sucursalService) =>
+        {
+            GetSucursalDto createdSucursal = await sucursalService.CreateSucursalAsync(newSucursal);
+            return Results.Created($"/sucursales/{createdSucursal.Id}", createdSucursal);
+        })
+        .WithName("CreateSucursal")
+        .WithOpenApi();
+
+//UpdateSucursalAsync(int sucursalId,UpdateSucursalDto updateSucursalDto)
+
+app.MapPut("/sucursales/{sucursalId}", async (int sucursalId, UpdateSucursalDto updatedSucursal, SucursalService sucursalService) =>
+        {
+            GetSucursalDto sucursal;
+            try
+            {
+                sucursal = await sucursalService.UpdateSucursalAsync(sucursalId, updatedSucursal);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+
+            return Results.Ok(sucursal);
+        })
+        .WithName("UpdateSucursal")
+        .WithOpenApi();
+
+
+//borrarSucursalAsync(int sucursalId
+app.MapDelete("/sucursales/{sucursalId}", async (int sucursalId, SucursalService sucursalService) =>
+        {
+            try
+            {
+                await sucursalService.DeleteSucursalAsync(sucursalId);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+
+            return Results.Ok();
+        })
+        .WithName("DeleteSucursal")
+        .WithOpenApi();
+
+
 //CreatePatrocinadorAsync(CrearPatrocinadorDto
 app.MapPost("/patrocinadores", async (CreatePatrocinadorDto newPatrocinador, PatrocinadorService patrocinadorService) =>
         {

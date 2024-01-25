@@ -120,8 +120,31 @@
             ],
             "UpstreamPathTemplate": "/patrocinadores",
             "UpstreamHttpMethod": [ "Post" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/sucursales/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/sucursales/{id}",
+            "UpstreamHttpMethod": [ "Put", "Delete" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/sucursales",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/sucursales",
+            "UpstreamHttpMethod": [ "Post" ]
         }
-        
   ],
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5009"
