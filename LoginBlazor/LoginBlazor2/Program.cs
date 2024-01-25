@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using LoginBlazor2;
 using Blazored.LocalStorage;
 using LoginBlazor2.Security.Services;
-using LoginShared.Security.Entities;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

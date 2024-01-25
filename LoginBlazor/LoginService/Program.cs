@@ -25,7 +25,9 @@ builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<UserRoleService>();
 builder.Services.AddScoped<PantallaService>();
 builder.Services.AddScoped<PantallaRoleService>();
+builder.Services.AddScoped<PatrocinadorService>();
 builder.Services.AddScoped<PatrocinadorRoleService>();
+builder.Services.AddScoped<SucursalService>();
 builder.Services.AddScoped<SucursalRoleService>();
 
 // Add CORS middleware to allow requests from all originss
@@ -60,7 +62,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-// Add authentication and authorization. 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
         options =>
         {
@@ -80,13 +81,16 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    var userService = scope.ServiceProvider.GetRequiredService<UserService>();
-    var roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
-    var userRoleService = scope.ServiceProvider.GetRequiredService<UserRoleService>();
-    var pantallasService = scope.ServiceProvider.GetRequiredService<PantallaService>();
-    var pantallaRoleService = scope.ServiceProvider.GetRequiredService<PantallaRoleService>();
-    var patrocinadorRoleService = scope.ServiceProvider.GetRequiredService<PatrocinadorRoleService>();
-    var sucursalRoleService = scope.ServiceProvider.GetRequiredService<SucursalRoleService>();
+    scope.ServiceProvider.GetRequiredService<UserService>();
+    scope.ServiceProvider.GetRequiredService<RoleService>();
+    scope.ServiceProvider.GetRequiredService<UserRoleService>();
+    scope.ServiceProvider.GetRequiredService<PantallaService>();
+    scope.ServiceProvider.GetRequiredService<PantallaRoleService>();
+    scope.ServiceProvider.GetRequiredService<PatrocinadorService>();
+    scope.ServiceProvider.GetRequiredService<PatrocinadorRoleService>();
+    scope.ServiceProvider.GetRequiredService<SucursalService>();
+    scope.ServiceProvider.GetRequiredService<SucursalRoleService>();
+    
     await dbContext.Database.EnsureCreatedAsync();
 }
 
@@ -97,9 +101,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    // Poblar la base de datos con algunos usuarios
-
 }
 
 app.UseHttpsRedirection();
@@ -132,7 +133,6 @@ string GenerateJwtToken(string email)
     return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 }
 
-// Login endpoint
 app.MapPost("/auth/login", async (LoginRequest request, UserService userService) =>
         {
             UserEntity user;
@@ -153,7 +153,6 @@ app.MapPost("/auth/login", async (LoginRequest request, UserService userService)
             {
                 return Results.Unauthorized();
             }
-            // JWT token generation
             string accessToken = GenerateJwtToken(user.Email);
             return Results.Ok(new { AccessToken = accessToken });
         })
@@ -214,7 +213,6 @@ app.MapPut("/users/{userId}", async (int userId, UpdateUserDto updatedUser, User
         .WithName("UpdateUserPassword")
         .WithOpenApi();
 
-//delete user
 app.MapDelete("/users/{userId}", async (int userId, UserService userService) =>
         {
             try
@@ -236,7 +234,6 @@ app.MapDelete("/users/{userId}", async (int userId, UserService userService) =>
         .WithName("DeleteUser")
         .WithOpenApi();
 
-//endpoints para roles
 app.MapPost("/roles", async (CreateRoleDto newRole, RoleService roleService) =>
         {
             var createdRole = await roleService.CreateRoleAsync(newRole);
@@ -292,7 +289,6 @@ app.MapPut("/roles/{roleId}", async (int roleId, UpdateRoleDto updatedRole, Role
         .WithOpenApi();
 
 
-//manejo de roles de usuario,AddUserRoleAsync
 app.MapPost("/users/{userId}/roles",
     async (string userId, AssignRoleToUserDto assignRoleToUserDto, UserService userService, RoleService roleService, UserRoleService userRoleService) =>
     {
@@ -367,7 +363,6 @@ app.MapDelete("/users/{userId}/roles/{roleId}", async (int userId, int roleId, U
         .WithOpenApi();
 
 
-// Get user roles by user id endpoint
 app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleService) =>
         {
             List<GetRoleDto> roles = await userRoleService.GetUserRolesByUserIdAsync(userId);
@@ -377,12 +372,10 @@ app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleS
         .WithOpenApi();
 
 
-//enpoint para pantallas
 app.MapGet("/pantallas", async (PantallaService pantallaService) => await pantallaService.GetAllPantallasAsync())
         .WithName("GetAllPantallas")
         .WithOpenApi();
 
-//asignar pantallas a roles
 app.MapPost("/roles/{roleId}/pantallas",
     async (string roleId, AssignPantallaToRoleDto assignPantallaToRoleDto, RoleService roleService, PantallaService pantallaService, PantallaRoleService pantallaRoleService) =>
     {
@@ -412,19 +405,16 @@ app.MapPost("/roles/{roleId}/pantallas",
         {
             return Results.Problem(e.Message);
         }
-        // Call the service and the method AddUserRoleAsync
         await pantallaRoleService.AddPantallaRoleAsync(pantalla.Id, role.Id);
         return Results.Created($"/roles/{roleId}/pantallas/{assignPantallaToRoleDto.PantallaId}", pantalla);
     })
     .WithName("AddPantallaToRole")
     .WithOpenApi();
 
-//ENPOINT PARA GetAllPatrocinadoresAsync
 app.MapGet("/patrocinadores", async (PatrocinadorService patrocinadorService) => await patrocinadorService.GetAllPatrocinadoresAsync())
         .WithName("GetAllPatrocinadores")
         .WithOpenApi();
 
-//ENPOINT PARA GetPatrocinadorByIdAsync
 app.MapPost("/patrocinadores/{patrocinadorId}/roles",
         async (string patrocinadorId, AssignPatrocinadorToRoleDto assignPatrocinadorToRoleDto, PatrocinadorService patrocinadorService, RoleService roleService, PatrocinadorRoleService patrocinadorRoleService) =>
         {
@@ -455,19 +445,16 @@ app.MapPost("/patrocinadores/{patrocinadorId}/roles",
                 return Results.Problem(e.Message);
             }
 
-            // Call the service and the method AddRolePatrocinadorAsync
             await patrocinadorRoleService.AddPatrocinadorRoleAsync(role.Id, patrocinador.Id);
             return Results.Created($"/patrocinadores/{patrocinadorId}/roles/{assignPatrocinadorToRoleDto.RoleId}", role);
         })
     .WithName("AddRoleToPatrocinador")
     .WithOpenApi();
 
-    //ENPOINT PARA GetAllSucursalesAsync
 app.MapGet("/sucursales", async (SucursalService sucursalService) => await sucursalService.GetAllSucursalesAsync())
         .WithName("GetAllSucursales")
         .WithOpenApi();
 
-//ENPOINT PARA GetSucursalByIdAsync
 app.MapPost("/sucursales/{sucursalId}/roles",
         async (string sucursalId, AssignSucursalToRoleDto assignSucursalToRoleDto, SucursalService sucursalService, RoleService roleService, SucursalRoleService sucursalRoleService) =>
         {
@@ -497,106 +484,11 @@ app.MapPost("/sucursales/{sucursalId}/roles",
             {
                 return Results.Problem(e.Message);
             }
-
-            // Call the service and the method AddRoleSucursalAsync
+            
             await sucursalRoleService.AddSucursalRoleAsync(role.Id, sucursal.Id);
             return Results.Created($"/sucursales/{sucursalId}/roles/{assignSucursalToRoleDto.RoleId}", role);
         })
     .WithName("AddRoleToSucursal")
     .WithOpenApi();
 
-
-
-
-
-
-
-
-
-
-
-
 app.Run();
-
-// // Login endpoint
-// app.MapPost("/auth/login", (LoginRequest request) =>
-//         {
-//             var user = userService.GetUserByEmail(request.Email);
-//             if (user != null && request.Password == user.Password)
-//             {/
-//                 // JWT token generation
-//                 var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
-//
-//                 var securityKey = new SymmetricSecurityKey(
-//                         Encoding.UTF8.GetBytes(
-//                                 "aopsjfp0aoisjf[poajsf[poajsp[fojasp[foja[psojf[paosjfp[aojsfpaojsfp[ojasf"));
-//                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-//
-//                 var jwtSecurityToken = new JwtSecurityToken(
-//                         issuer: "https://www.surymartinez.com",
-//                         audience: "Minimal APIs Client",
-//                         claims: claims,
-//                         expires: DateTime.UtcNow.AddHours(1),
-//                         signingCredentials: credentials);
-//
-//                 var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-//
-//                 return Results.Ok(new { AccessToken = accessToken });
-//             }
-//
-//             return Results.BadRequest();
-//         })
-//         .WithName("Login")
-//         .AllowAnonymous()
-//         .WithOpenApi();
-//
-//
-// app.MapPost("/users", (User newUser) =>
-// {
-//     var createdUser = userService.CreateUser(newUser);
-//     return Results.Created($"/users/{createdUser.Email}", createdUser);
-// }).WithName("CreateUser").WithOpenApi();
-//
-// //desde aqui empiezan los endpoints de userRole
-// //nuevo Endpoint POST /users/{userId}/roles/{roleId}
-// app.MapPost("/userRoles", (int userId, int roleId) => { return userRoleService.AddUserRole(userId, roleId); })
-//         .WithName("AddUserRole")
-//         .WithOpenApi();
-//
-//
-// //nuevo Endpoint GET /users/{userId}/roles
-// app.MapGet("/userRoles/{userId}", (int userId) => { return userRoleService.GetUserRolesByUserId(userId); })
-//         .WithName("GetUserRolesByUserId")
-//         .WithOpenApi();
-//
-// //nuevo Endpoint GET /users/{userId}/roles/{roleId}
-// app.MapGet("/userRoles/{userId}/{roleId}", async (int userId, int roleId) =>
-// {
-//     try
-//     {
-//         var userRole = await userRoleService.GetUserRole(userId, roleId);
-//         return (userRole is null)
-//                 ? Results.NotFound($"User Role with user id: {userId} and role id: {roleId} not found.")
-//                 : Results.Ok(userRole);
-//     }
-//     catch (Exception e)
-//     {
-//         return Results.Problem(detail: e.Message, statusCode: 500);
-//     }
-// }).WithName("GetUserRole").WithOpenApi();
-//
-//
-// //nuevo Endpoint DELETE /users/{userId}/roles/{roleId}
-// app.MapDelete("/userRoles/{userId}/{roleId}",
-//                 (int userId, int roleId) => { return userRoleService.DeleteUserRole(userId, roleId); })
-//         .WithName("DeleteUserRole")
-//         .WithOpenApi();
-//
-// //nuevo Endpoint PUT /users/{userId}/roles/{roleId}
-// app.MapPut("/userRoles/{userId}/{roleId}",
-//         (int userId, int roleId, UserRole updatedUserRole) =>
-//         {
-//             return userRoleService.UpdateUserRole(userId, roleId, updatedUserRole);
-//         }).WithName("UpdateUserRole").WithOpenApi();
-//
-//
