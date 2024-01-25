@@ -25,6 +25,8 @@ builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<UserRoleService>();
 builder.Services.AddScoped<PantallaService>();
 builder.Services.AddScoped<PantallaRoleService>();
+builder.Services.AddScoped<PatrocinadorRoleService>();
+builder.Services.AddScoped<SucursalRoleService>();
 
 // Add CORS middleware to allow requests from all originss
 builder.Services.AddCors(options =>
@@ -83,6 +85,8 @@ using (var scope = app.Services.CreateScope())
     var userRoleService = scope.ServiceProvider.GetRequiredService<UserRoleService>();
     var pantallasService = scope.ServiceProvider.GetRequiredService<PantallaService>();
     var pantallaRoleService = scope.ServiceProvider.GetRequiredService<PantallaRoleService>();
+    var patrocinadorRoleService = scope.ServiceProvider.GetRequiredService<PatrocinadorRoleService>();
+    var sucursalRoleService = scope.ServiceProvider.GetRequiredService<SucursalRoleService>();
     await dbContext.Database.EnsureCreatedAsync();
 }
 
@@ -415,6 +419,103 @@ app.MapPost("/roles/{roleId}/pantallas",
     .WithName("AddPantallaToRole")
     .WithOpenApi();
 
+//ENPOINT PARA GetAllPatrocinadoresAsync
+app.MapGet("/patrocinadores", async (PatrocinadorService patrocinadorService) => await patrocinadorService.GetAllPatrocinadoresAsync())
+        .WithName("GetAllPatrocinadores")
+        .WithOpenApi();
+
+//ENPOINT PARA GetPatrocinadorByIdAsync
+app.MapPost("/patrocinadores/{patrocinadorId}/roles",
+        async (string patrocinadorId, AssignPatrocinadorToRoleDto assignPatrocinadorToRoleDto, PatrocinadorService patrocinadorService, RoleService roleService, PatrocinadorRoleService patrocinadorRoleService) =>
+        {
+            GetRoleDto role;
+            try
+            {
+                role = await roleService.GetRoleByIdAsync(assignPatrocinadorToRoleDto.RoleId);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+            GetPatrocinadorDto patrocinador;
+            try
+            {
+                patrocinador = await patrocinadorService.GetPatrocinadorByIdAsync(int.Parse(patrocinadorId));
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+
+            // Call the service and the method AddRolePatrocinadorAsync
+            await patrocinadorRoleService.AddPatrocinadorRoleAsync(role.Id, patrocinador.Id);
+            return Results.Created($"/patrocinadores/{patrocinadorId}/roles/{assignPatrocinadorToRoleDto.RoleId}", role);
+        })
+    .WithName("AddRoleToPatrocinador")
+    .WithOpenApi();
+
+    //ENPOINT PARA GetAllSucursalesAsync
+app.MapGet("/sucursales", async (SucursalService sucursalService) => await sucursalService.GetAllSucursalesAsync())
+        .WithName("GetAllSucursales")
+        .WithOpenApi();
+
+//ENPOINT PARA GetSucursalByIdAsync
+app.MapPost("/sucursales/{sucursalId}/roles",
+        async (string sucursalId, AssignSucursalToRoleDto assignSucursalToRoleDto, SucursalService sucursalService, RoleService roleService, SucursalRoleService sucursalRoleService) =>
+        {
+            GetRoleDto role;
+            try
+            {
+                role = await roleService.GetRoleByIdAsync(assignSucursalToRoleDto.RoleId);
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+            GetSucursalDto sucursal;
+            try
+            {
+                sucursal = await sucursalService.GetSucursalByIdAsync(int.Parse(sucursalId));
+            }
+            catch (ArgumentException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+
+            // Call the service and the method AddRoleSucursalAsync
+            await sucursalRoleService.AddSucursalRoleAsync(role.Id, sucursal.Id);
+            return Results.Created($"/sucursales/{sucursalId}/roles/{assignSucursalToRoleDto.RoleId}", role);
+        })
+    .WithName("AddRoleToSucursal")
+    .WithOpenApi();
+
+
+
+
+
+
+
+
+
+
+
+
 app.Run();
 
 // // Login endpoint
@@ -422,7 +523,7 @@ app.Run();
 //         {
 //             var user = userService.GetUserByEmail(request.Email);
 //             if (user != null && request.Password == user.Password)
-//             {
+//             {/
 //                 // JWT token generation
 //                 var claims = new List<Claim>() { new(ClaimTypes.Name, request.Email), };
 //

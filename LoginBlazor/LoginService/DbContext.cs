@@ -17,6 +17,11 @@ public class AppDbContext : DbContext
     public DbSet<PantallaEntity> Pantallas { get; set; }
     public DbSet<PantallaRoleEntity> PantallaRoles { get; set; }
     
+    public DbSet<PatrocinadorEntity> Patrocinadores { get; set; }
+    public DbSet<PatrocinadorRoleEntity> PatrocinadorRoles { get; set; }
+    public DbSet<SucursalEntity> Sucursales { get; set; }
+    public DbSet<SucursalRoleEntity> SucursalRoles { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserEntity>().ToTable("Users");
@@ -24,5 +29,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<UserRoleEntity>().ToTable("UserRoles");
         modelBuilder.Entity<PantallaEntity>().ToTable("Pantallas").HasData(PantallaData.pantallas);
         modelBuilder.Entity<PantallaRoleEntity>().ToTable("PantallaRoles");
+        modelBuilder.Entity<PatrocinadorEntity>().ToTable("Patrocinadores").HasData(PatrocinadorData.patrocinadores);
+        modelBuilder.Entity<PatrocinadorRoleEntity>().ToTable("PatrocinadorRoles");
+        modelBuilder.Entity<SucursalEntity>().ToTable("Sucursales").HasData(SucursalData.sucursales);
+        modelBuilder.Entity<SucursalRoleEntity>().ToTable("SucursalRoles");
     }
 }

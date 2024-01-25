@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using LoginBlazor2;
 using Blazored.LocalStorage;
 using LoginBlazor2.Security.Services;
+using LoginShared.Security.Entities;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -22,4 +23,6 @@ builder.Services.AddHttpClient<UserService>();
 builder.Services.AddHttpClient<RoleService>();
 builder.Services.AddHttpClient<UserRoleService>();
 builder.Services.AddHttpClient<PantallaRoleService>();
+builder.Services.AddHttpClient<PatrocinadorRoleService>();
+builder.Services.AddHttpClient<SucursalRoleService>();
 await builder.Build().RunAsync();

@@ -1,0 +1,118 @@
+﻿@page "/security/PatrocinadorRoles"
+@inject RoleService RoleService
+@inject PatrocinadorRoleService PatrocinadorRoleService
+
+@using LoginShared.Security.DTOs
+@using LoginBlazor2.Security.Services
+
+<div class="content__header content__boxed overlapping">
+    <div class="content__wrap">
+        <div class="d-md-flex align-items-end">
+            <div class="me-auto">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="/">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Patrocinador por roles</li>
+                    </ol>
+                </nav>
+                <!-- END : Breadcrumb -->
+                <h1 class="page-title mb-0 mt-2">Patrocinador por roles</h1>
+            </div>
+            <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
+                       >
+                    <i class="pli-pen-5 fs-5 me-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content__boxed">
+    <div class="content__wrap">
+        <div class="row mt-3">
+            @if (roles == null)
+            {
+                <div class="col-12">
+                    <p>Loading...</p>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <h3>Asignar una patrocinador a un rol</h3>
+                    <div>
+                        <label>
+                            Patrocinador:
+                            <select @bind="selectedPatrocinadorId">
+                                @foreach (var patrocinador in patrocinadores)
+                                {
+                                    <option value="@patrocinador.Id">@patrocinador.Descripcion</option>
+                                }
+                               
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Rol:
+                            <select @bind="selectedRoleId">
+                                @foreach (var role in roles)
+                                {
+                                    <option value="@role.Id">@role.Description</option>
+                                }
+                            </select>
+                        </label>
+                    </div>
+                    <button type="button" @onclick="AddPatrocinadorRole">Asignar</button>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p>@errorMessage</p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    private int selectedPatrocinadorId;
+    private int selectedRoleId;
+    private List<GetRoleDto> roles;
+    private List<GetPatrocinadorDto> patrocinadores;
+    
+    private string errorMessage = string.Empty;
+    
+    protected   override async Task OnInitializedAsync()
+    {
+        
+        patrocinadores = await PatrocinadorRoleService.GetPatrocinadores();
+        roles = await RoleService.GetRoles();
+    }
+    
+    private async Task AddPatrocinadorRole()
+    {
+        
+        try
+        {
+            
+            await PatrocinadorRoleService.AddPatrocinadorRole(selectedPatrocinadorId, selectedRoleId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+    
+    
+    
+   //la tabla de muchos a muchos
+   
+   // asignar un rol a una pantalla
+}
