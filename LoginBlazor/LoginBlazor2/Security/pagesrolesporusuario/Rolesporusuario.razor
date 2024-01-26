@@ -8,72 +8,40 @@
 @using LoginShared.Security.DTOs
 @inject NavigationManager NavigationManager
 
-<div class="content__header content__boxed overlapping">
-    <div class="content__wrap">
-        <div class="d-md-flex align-items-end">
-            <div class="me-auto">
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item">
-                            <a href="/">Home</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">Roles por Usuario</li>
-                    </ol>
-                </nav>
-                <!-- END : Breadcrumb -->
-                <h1 class="page-title mb-0 mt-2">Roles por Usuario</h1>
-            </div>
-            <div class="d-flex justify-content-end gap-1">
-                <button class="btn btn-sm btn-icon btn-hover btn-light shadow-none"
-                        @onclick="() => NavigateToUserRoleEdit(0)">
-                    <i class="pli-pen-5 fs-5 me-2"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="content__boxed">
+<div class="content__header content__boxed rounded-0 blue-background">
     <div class="content__wrap">
-        <div class="row mt-3">
-            @if (roles == null)
+
+        <!-- Project name and information -->
+        <h1 class="page-title d-flex flex-wrap align-items-center justify-content-center mb-2 mt-4">Asignar Roles a Usuario</h1>
+        <p class="text-center">Asigne un rol a un usuario específico utilizando los siguientes selectores.</p>
+
+        <!-- Sort and priority filter -->
+        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 py-4">
+
+            <div class="me-2">Selecciona el Usuario :</div>
+            <select @bind="selectedUserId" class="form-select w-auto rounded" aria-label="User options">
+                @foreach (var user in users)
+                {
+                    <option value="@user.Id">@user.Name</option>
+                }
+            </select>
+
+            <div class="me-2">Selecciona el Rol :</div>
+            <select @bind="selectedRoleId" class="form-select w-auto rounded" aria-label="Role options">
+                @foreach (var role in roles)
+                {
+                    <option value="@role.Id">@role.Description</option>
+                }
+            </select>
+
+            <button @onclick="AssignRoleToUser" class="btn btn-light rounded">Asignar</button>
+            <button @onclick="() => NavigateToUserRoleEdit(0)" class="btn btn-light">Editar</button>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="col-12">
-                    <p>Loading...</p>
-                </div>
-            }
-            else
-            {
-                <div>
-                    <h3>Asignar rol a un usuario</h3>
-                    <div>
-                        <label>
-                            Usuario:
-                            <select @bind="selectedUserId">
-                                @foreach (var user in users)
-                                {
-                                    <option value="@user.Id">@user.Name</option>
-                                }
-                            </select>
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Rol:
-                            <select @bind="selectedRoleId">
-                                @foreach (var role in roles)
-                                {
-                                    <option value="@role.Id">@role.Description</option>
-                                }
-                            </select>
-                        </label>
-                    </div>
-                    <button type="button" @onclick="AssignRoleToUser">Asignar</button>
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <p>@errorMessage</p>
-                    }
+                <div class="alert alert-danger mt-3" role="alert">
+                    @errorMessage
                 </div>
             }
         </div>

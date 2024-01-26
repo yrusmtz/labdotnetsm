@@ -4,59 +4,59 @@
 @inject NavigationManager NavigationManager
 @using LoginShared
 @using LoginShared.Security.DTOs
+@using Microsoft.AspNetCore.Components.Forms
 
+<div class="container d-flex align-items-center justify-content-center vh-100">
+    <EditForm Model="newUser" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
 
-<div id="root" class="root front-container">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-3">Agrega un Usuario por Favor</h5>
+        </div>
 
-    <section id="content" class="content">
-        <div class="content__boxed w-100 min-vh-100 d-flex flex-column align-items-center justify-content-center">
-            <div class="content__wrap">
-
-                <div class="card shadow-lg">
-                    <div class="card-body">
-
-                        <div class="text-center">
-                            <h3 class="h3">UserForm</h3>
-                        </div>
-
-                        <EditForm Model="@newUser" OnValidSubmit="HandleValidSubmit">
-                            <DataAnnotationsValidator/>
-                            <ValidationSummary/>
-
-                            <div class="w-md-100% d-inline-flex row g-3 mb-4">
-                                <div class="col-sm-6">
-                                    <InputText class="form-control" placeholder="First name" @bind-Value="newUser.Name"/>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <InputText class="form-control" placeholder="Last name" @bind-Value="newUser.LastName"/>
-                                </div>
-
-                                <div class="col-12">
-                                    <InputText class="form-control" placeholder="Department" @bind-Value="newUser.Department"/>
-                                </div>
-
-                                <div class="col-12">
-                                    <InputText type="email" class="form-control" placeholder="Email" @bind-Value="newUser.Email"/>
-                                </div>
-
-                                <div class="col-12">
-                                    <InputText class="form-control" placeholder="Puesto" @bind-Value="newUser.Puesto"/>
-                                </div>
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
-                            </div>
-                        </EditForm>
-
+        <div class="card-body">
+            <div class="row">
+                <!-- Left toolbar -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <InputText class="form-control" @bind-Value="newUser.Name"/>
+                        <label>Primer Nombre</label>
+                    </div>
+                    <div class="form-group">
+                        <InputText class="form-control" @bind-Value="newUser.LastName"/>
+                        <label>Segundo Nombre</label>
                     </div>
                 </div>
+                <!-- END : Left toolbar -->
 
+                <!-- Right Toolbar -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <InputText class="form-control" @bind-Value="newUser.Department"/>
+                        <label>Departamento </label>
+                    </div>
+                    <div class="form-group">
+                        <InputText class="form-control" @bind-Value="newUser.Email"/>
+                        <label>Email</label>
+                    </div>
+                    <div class="form-group">
+                        <InputText class="form-control" @bind-Value="newUser.Puesto"/>
+                        <label>Puesto</label>
+                    </div>
+                </div>
+                <!-- END : Right Toolbar -->
             </div>
+
+            <button class="btn btn-primary">
+                <i class="demo-psi-add fs-5"></i>
+                <span>Guardar</span>
+            </button>
+
         </div>
-    </section>
-</div>
+    </div>
+</EditForm>
 
 @code {
     private UserFormModel newUser = new();
@@ -74,16 +74,14 @@
     {
         // create the CreateUserDto para enviarlo al servicio de creacion de usuarios
         var user = new CreateUserDto
-        (  newUser.Name,
+        (newUser.Name,
             newUser.LastName,
             newUser.Department,
             newUser.Email,
             newUser.Puesto
-            );
-        
-        
-      
-        
+        );
+
+
         var createdUser = await UserService.CreateUser(user);
 
         // navigate to the user list page.
@@ -91,3 +89,5 @@
     }
 
 }
+
+</div>

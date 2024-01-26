@@ -16,27 +16,45 @@ else
     <div class="content__boxed">
         <div class="content__wrap">
             <div class="row justify-content-center">
-                <div class="col-md-6 text-center">
+                <div class="col-md-6">
                     <div class="card">
                         <div class="card-body pt-2">
-                            <h3 class="card-title">@user.Name</h3>
+                            <h3 class="card-title text-center">@user.Name</h3>
                             <hr/>
-                            <dl class="row">
-                                <dt class="col-sm-2">Name</dt>
-                                <dd class="col-sm-10">@user.Name</dd>
-
-                                <dt class="col-sm-2">Last Name</dt>
-                                <dd class="col-sm-10">@user.LastName</dd>
-
-                                <dt class="col-sm-2">Email</dt>
-                                <dd class="col-sm-10">@user.Email</dd>
-
-                                <dt class="col-sm-2">Puesto</dt>
-                                <dd class="col-sm-10">@user.Puesto</dd>
-
-                                <dt class="col-sm-2">Department</dt>
-                                <dd class="col-sm-10">@user.Department</dd>
-                            </dl>
+                            <table class="table">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Nombre:</strong>
+                                    </td>
+                                    <td>@user.Name</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Apellido:</strong>
+                                    </td>
+                                    <td>@user.LastName</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Email:</strong>
+                                    </td>
+                                    <td>@user.Email</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Puesto:</strong>
+                                    </td>
+                                    <td>@user.Puesto</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Departmento:</strong>
+                                    </td>
+                                    <td>@user.Department</td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -54,11 +72,11 @@ else
     {
         var users = await UserService.GetUsers();
         user = await UserService.GetUserById(Id);
-        
+
         if (user == null)
         {
             NavigationManager.NavigateTo("/security/users");
         }
-        
     }
+
 }
