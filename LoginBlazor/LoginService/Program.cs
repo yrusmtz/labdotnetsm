@@ -371,6 +371,9 @@ app.MapGet("/users/{userId}/roles", async (int userId, UserRoleService userRoleS
         .WithName("GetUserRolesByUserId")
         .WithOpenApi();
 
+//GetUserRoles
+
+
 
 app.MapGet("/pantallas", async (PantallaService pantallaService) => await pantallaService.GetAllPantallasAsync())
         .WithName("GetAllPantallas")

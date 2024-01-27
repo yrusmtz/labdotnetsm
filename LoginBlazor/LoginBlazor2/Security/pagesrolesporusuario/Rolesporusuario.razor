@@ -48,6 +48,7 @@
     </div>
 </div>
 
+
 @code {
     private int selectedUserId;
     private int selectedRoleId;
@@ -79,5 +80,14 @@
     {
         NavigationManager.NavigateTo("/Security/EditUserRole/" + Id);
     }
-
+    
+    // private async Task UpdateUsersAndRolesAsync()
+    // {
+    //     users = await UserService.GetUsers();
+    //     roles = await RoleService.GetRoles();
+    //     foreach (var user in users)
+    //     {
+    //         user.Roles = await UserRoleService.GetRolesByUserIdAsync(user.Id);
+    //     }
+    // }
 }

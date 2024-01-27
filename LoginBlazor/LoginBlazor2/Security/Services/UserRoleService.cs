@@ -24,7 +24,7 @@ public class UserRoleService
             throw new Exception($"Failed to add role {roleId} to user {userId}");
         }
     }
-    
+
     public async Task DeleteUserRoleAsync(int userId, int roleId)
     {
         var response = await httpClient.DeleteAsync($"/users/{userId}/roles/{roleId}");
@@ -33,7 +33,7 @@ public class UserRoleService
             throw new Exception($"Failed to delete role {roleId} from user {userId}");
         }
     }
-    
+
     public async Task<IEnumerable<GetRoleDto>> GetRolesByUserIdAsync(int userId)
     {
         var response = await httpClient.GetAsync($"/users/{userId}/roles");
@@ -47,4 +47,16 @@ public class UserRoleService
             throw new Exception($"Failed to retrieve roles for user {userId}");
         }
     }
+
+    //UpdateUsersAndRoles
+    public async Task UpdateUsersAndRolesAsync(int userId, List<GetRoleDto> roles)
+    {
+        var response = await httpClient.PutAsJsonAsync($"/users/{userId}/roles", roles);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to update roles for user {userId}");
+        }
+    }
+
+
 }

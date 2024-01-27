@@ -25,7 +25,8 @@ namespace LoginService
 
         public async Task<bool> DeleteUserRoleAsync(int userId, int roleId)
         {
-            var userRole = await _context.UserRoles.SingleOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+            var userRole =
+                await _context.UserRoles.SingleOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
             if (userRole == null)
                 throw new ArgumentException($"No UserRole found for User ID {userId} and Role ID {roleId}");
 
@@ -36,33 +37,34 @@ namespace LoginService
 
         public async Task<GetRoleDto> GetUserRoleAsync(int userId, int roleId)
         {
-            var userRole = await _context.UserRoles.Include(ur => ur.Role).SingleOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+            var userRole = await _context.UserRoles.Include(ur => ur.Role)
+                .SingleOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
             if (userRole == null)
                 throw new ArgumentException($"No UserRole found for User ID {userId} and Role ID {roleId}");
 
             var getRoleDto = new GetRoleDto
             (
-                    userRole.Role.Id,
-                    userRole.Role.Code,
-                    userRole.Role.Description,
-                    userRole.Role.State
+                userRole.Role.Id,
+                userRole.Role.Code,
+                userRole.Role.Description,
+                userRole.Role.State
             );
             return getRoleDto;
         }
 
         public async Task<List<GetRoleDto>> GetUserRolesByUserIdAsync(int userId)
         {
-            var userRoles = await _context.UserRoles.Include(ur => ur.Role).Where(ur => ur.UserId == userId).ToListAsync();
+            var userRoles = await _context.UserRoles.Include(ur => ur.Role).Where(ur => ur.UserId == userId)
+                .ToListAsync();
             return userRoles.Select(ur => new GetRoleDto
             (
-                    ur.Role.Id,
-                    ur.Role.Code,
-                    ur.Role.Description,
-                    ur.Role.State
+                ur.Role.Id,
+                ur.Role.Code,
+                ur.Role.Description,
+                ur.Role.State
             )).ToList();
-
         }
 
-
+      
     }
 }
