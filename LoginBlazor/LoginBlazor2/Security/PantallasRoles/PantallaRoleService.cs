@@ -13,6 +13,7 @@ public class PantallaRoleService
         this.httpClient.BaseAddress = new Uri("http://localhost:5001/api");
     }
     
+    // TODO: Pantallas debe de estar en un servicio aparte
     public async Task<List<GetPantallaDto>> GetPantallas()
     {
         var pantallas = await httpClient.GetFromJsonAsync<List<GetPantallaDto>>("/pantallas");
