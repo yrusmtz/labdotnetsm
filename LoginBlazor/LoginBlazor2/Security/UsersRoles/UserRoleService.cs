@@ -34,12 +34,12 @@ public class UserRoleService
         }
     }
 
-    public async Task<IEnumerable<GetRoleDto>> GetRolesByUserIdAsync(int userId)
+    public async Task<List<GetRoleDto>> GetRolesByUserIdAsync(int userId)
     {
         var response = await httpClient.GetAsync($"/users/{userId}/roles");
         if (response.IsSuccessStatusCode)
         {
-            var roles = await response.Content.ReadFromJsonAsync<IEnumerable<GetRoleDto>>();
+            var roles = await response.Content.ReadFromJsonAsync<List<GetRoleDto>>();
             return roles!;
         }
         else

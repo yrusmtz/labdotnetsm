@@ -379,6 +379,10 @@ app.MapGet("/pantallas", async (PantallaService pantallaService) => await pantal
         .WithName("GetAllPantallas")
         .WithOpenApi();
 
+app.MapGet("/roles/{roleId}/pantallas", async (string roleId, PantallaRoleService pantallaRoleService) => await pantallaRoleService.GetPantallasByRoleIdAsync(int.Parse(roleId)))
+        .WithName("GetAllPantallasByRoleId")
+        .WithOpenApi();
+
 app.MapPost("/roles/{roleId}/pantallas",
     async (string roleId, AssignPantallaToRoleDto assignPantallaToRoleDto, RoleService roleService, PantallaService pantallaService, PantallaRoleService pantallaRoleService) =>
     {

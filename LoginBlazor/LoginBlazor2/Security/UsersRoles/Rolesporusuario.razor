@@ -9,42 +9,95 @@
 @inject NavigationManager NavigationManager
 
 
-<div class="content__header content__boxed rounded-0 blue-background">
+<div class="content__header content__boxed rounded-0 blue-background"
+     xmlns="http://www.w3.org/1999/html">
     <div class="content__wrap">
 
-        <!-- Project name and information -->
-        <h1 class="page-title d-flex flex-wrap align-items-center justify-content-center mb-2 mt-4">Asignar Roles a Usuario</h1>
-        <p class="text-center">Asigne un rol a un usuario específico utilizando los siguientes selectores.</p>
+        @if (users is null || roles is null || rolesByUser is null)
+        {
+            <Spinner/>
+        }
+        else
+        {
 
-        <!-- Sort and priority filter -->
-        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 py-4">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="page-title d-flex flex-wrap align-items-center justify-content-center mb-2 mt-4">Asignar Roles a Usuario</h1>
+                    <p class="text-center">Asigne un rol a un usuario específico utilizando los siguientes selectores.</p>
 
-            <div class="me-2">Selecciona el Usuario :</div>
-            <select @bind="selectedUserId" class="form-select w-auto rounded" aria-label="User options">
-                @foreach (var user in users)
-                {
-                    <option value="@user.Id">@user.Name</option>
-                }
-            </select>
+                    <div class="justify-content-center centered-layout">
+                        <div class="row">
+                            <label for="userSelect" class="col-form-label me-2">Selecciona el Usuario :</label>
+                            <select id="userSelect" @bind="selectedUserId" class="form-select w-auto rounded" aria-label="User options">
+                                @foreach (var user in users)
+                                {
+                                    <option value="@user.Id">@user.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <label for="roleSelect" class="col-form-label me-2">Selecciona el Rol :</label>
+                            <select id="roleSelect" @bind="selectedRoleId" class="form-select w-auto rounded" aria-label="Role options">
+                                @foreach (var role in roles)
+                                {
+                                    <option value="@role.Id">@role.Description</option>
+                                }
+                            </select>
+                        </div>
+                        <br/>
+                        <button @onclick="AssignRoleToUser" class="btn btn-light rounded">Asignar</button>
+                        <button @onclick="() => NavigateToUserRoleEdit(0)" class="btn btn-light">Editar</button>
 
-            <div class="me-2">Selecciona el Rol :</div>
-            <select @bind="selectedRoleId" class="form-select w-auto rounded" aria-label="Role options">
-                @foreach (var role in roles)
-                {
-                    <option value="@role.Id">@role.Description</option>
-                }
-            </select>
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger mt-3" role="alert">
+                                @errorMessage
+                            </div>
+                        }
+                    </div>
 
-            <button @onclick="AssignRoleToUser" class="btn btn-light rounded">Asignar</button>
-            <button @onclick="() => NavigateToUserRoleEdit(0)" class="btn btn-light">Editar</button>
-
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger mt-3" role="alert">
-                    @errorMessage
                 </div>
-            }
-        </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    Detalle
+                </div>
+                <div class="card-body">
+
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Rol</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr>
+                                <td>@user.Name</td>
+                                <td>
+                                    @foreach (GetRoleDto role
+                                              in rolesByUser
+                                                         .FirstOrDefault(
+                                                                 r => r.User.Id == user.Id)?.Roles ??
+                                                 []
+                                             )
+                                    {
+                                        <span class="badge bg-primary rounded-pill g-3">@role.Description</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        }
     </div>
 </div>
 
@@ -56,13 +109,37 @@
     private List<GetUserDto> users;
     private List<GetRoleDto> roles;
 
+    private List<RoleByUser> rolesByUser = new List<RoleByUser>();
+
+    class RoleByUser(GetUserDto user, List<GetRoleDto> roles)
+    {
+        public GetUserDto User { get; set; } = user;
+        public List<GetRoleDto> Roles { get; set; } = roles;
+    }
+
     private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         users = await UserService.GetUsers();
         roles = await RoleService.GetRoles();
+        await GetrolesByUser();
     }
+
+    async Task GetrolesByUser()
+    {
+        foreach (GetUserDto user in users)
+        {
+            List<GetRoleDto> roleDtos = await UserRoleService.GetRolesByUserIdAsync(user.Id);
+            rolesByUser.Add(
+                    new RoleByUser(
+                            user,
+                            roleDtos
+                    )
+            );
+        }
+    }
+
 
     private async Task AssignRoleToUser()
     {
@@ -74,13 +151,15 @@
         {
             errorMessage = $"Error: {ex.Message}";
         }
+
+        await GetrolesByUser();
     }
 
     private void NavigateToUserRoleEdit(int Id)
     {
         NavigationManager.NavigateTo("/Security/EditUserRole/" + Id);
     }
-    
+
     // private async Task UpdateUsersAndRolesAsync()
     // {
     //     users = await UserService.GetUsers();

@@ -27,7 +27,8 @@ public class PantallaRoleService
     public async Task<bool> DeletePantallaRoleAsync(int pantallaId, int roleId)
     {
         var pantallaRole =
-            await _context.PantallaRoles.SingleOrDefaultAsync(ur => ur.PantallaId == pantallaId && ur.RoleId == roleId);
+                await _context.PantallaRoles.SingleOrDefaultAsync(ur =>
+                        ur.PantallaId == pantallaId && ur.RoleId == roleId);
         if (pantallaRole == null)
             throw new ArgumentException($"No PantallaRole found for Pantalla ID {pantallaId} and Role ID {roleId}");
 
@@ -39,16 +40,16 @@ public class PantallaRoleService
     public async Task<GetRoleDto> GetPantallaRoleAsync(int pantallaId, int roleId)
     {
         var pantallaRole = await _context.PantallaRoles.Include(ur => ur.Role)
-            .SingleOrDefaultAsync(ur => ur.PantallaId == pantallaId && ur.RoleId == roleId);
+                .SingleOrDefaultAsync(ur => ur.PantallaId == pantallaId && ur.RoleId == roleId);
         if (pantallaRole == null)
             throw new ArgumentException($"No PantallaRole found for Pantalla ID {pantallaId} and Role ID {roleId}");
 
         var getRoleDto = new GetRoleDto
         (
-            pantallaRole.Role.Id,
-            pantallaRole.Role.Code,
-            pantallaRole.Role.Description,
-            pantallaRole.Role.State
+                pantallaRole.Role.Id,
+                pantallaRole.Role.Code,
+                pantallaRole.Role.Description,
+                pantallaRole.Role.State
         );
         return getRoleDto;
     }
@@ -56,13 +57,26 @@ public class PantallaRoleService
     public async Task<List<GetRoleDto>> GetPantallaRolesByPantallaIdAsync(int pantallaId)
     {
         var pantallaRoles = await _context.PantallaRoles.Include(ur => ur.Role).Where(ur => ur.PantallaId == pantallaId)
-            .ToListAsync();
+                .ToListAsync();
         return pantallaRoles.Select(ur => new GetRoleDto
         (
-            ur.Role.Id,
-            ur.Role.Code,
-            ur.Role.Description,
-            ur.Role.State
+                ur.Role.Id,
+                ur.Role.Code,
+                ur.Role.Description,
+                ur.Role.State
+        )).ToList();
+    }
+
+    public async Task<List<GetPantallaDto>> GetPantallasByRoleIdAsync(int roleId)
+    {
+        var pantallaRoles = await _context.PantallaRoles.Include(ur => ur.Pantalla).Where(ur => ur.RoleId == roleId)
+                .ToListAsync();
+        return pantallaRoles.Select(ur => new GetPantallaDto
+        (
+                ur.Pantalla.Id,
+                ur.Pantalla.Codigo,
+                ur.Pantalla.Descripcion,
+                ur.Pantalla.Estado
         )).ToList();
     }
 }
