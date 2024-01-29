@@ -422,8 +422,8 @@ app.MapGet("/patrocinadores", async (PatrocinadorService patrocinadorService) =>
         .WithName("GetAllPatrocinadores")
         .WithOpenApi();
 
-app.MapPost("/patrocinadores/{patrocinadorId}/roles",
-        async (string patrocinadorId, AssignPatrocinadorToRoleDto assignPatrocinadorToRoleDto, PatrocinadorService patrocinadorService, RoleService roleService, PatrocinadorRoleService patrocinadorRoleService) =>
+app.MapPost("/roles/{roleId}/patrocinadores",
+        async (string roleId, AssignPatrocinadorToRoleDto assignPatrocinadorToRoleDto, PatrocinadorService patrocinadorService, RoleService roleService, PatrocinadorRoleService patrocinadorRoleService) =>
         {
             GetRoleDto role;
             try
@@ -441,7 +441,7 @@ app.MapPost("/patrocinadores/{patrocinadorId}/roles",
             GetPatrocinadorDto patrocinador;
             try
             {
-                patrocinador = await patrocinadorService.GetPatrocinadorByIdAsync(int.Parse(patrocinadorId));
+                patrocinador = await patrocinadorService.GetPatrocinadorByIdAsync(assignPatrocinadorToRoleDto.PatrocinadorId);
             }
             catch (ArgumentException)
             {
@@ -452,8 +452,8 @@ app.MapPost("/patrocinadores/{patrocinadorId}/roles",
                 return Results.Problem(e.Message);
             }
 
-            await patrocinadorRoleService.AddPatrocinadorRoleAsync(role.Id, patrocinador.Id);
-            return Results.Created($"/patrocinadores/{patrocinadorId}/roles/{assignPatrocinadorToRoleDto.RoleId}", role);
+            await patrocinadorRoleService.AddPatrocinadorRoleAsync(patrocinador.Id,role.Id);
+            return Results.Created($"/roles/{assignPatrocinadorToRoleDto.RoleId}/patrocinadores/{assignPatrocinadorToRoleDto.PatrocinadorId}", role);
         })
     .WithName("AddRoleToPatrocinador")
     .WithOpenApi();
@@ -462,8 +462,8 @@ app.MapGet("/sucursales", async (SucursalService sucursalService) => await sucur
         .WithName("GetAllSucursales")
         .WithOpenApi();
 
-app.MapPost("/sucursales/{sucursalId}/roles",
-        async (string sucursalId, AssignSucursalToRoleDto assignSucursalToRoleDto, SucursalService sucursalService, RoleService roleService, SucursalRoleService sucursalRoleService) =>
+app.MapPost("/roles/{roleId}/sucursales",
+        async (string roleId, AssignSucursalToRoleDto assignSucursalToRoleDto, SucursalService sucursalService, RoleService roleService, SucursalRoleService sucursalRoleService) =>
         {
             GetRoleDto role;
             try
@@ -481,7 +481,7 @@ app.MapPost("/sucursales/{sucursalId}/roles",
             GetSucursalDto sucursal;
             try
             {
-                sucursal = await sucursalService.GetSucursalByIdAsync(int.Parse(sucursalId));
+                sucursal = await sucursalService.GetSucursalByIdAsync(assignSucursalToRoleDto.SucursalId);
             }
             catch (ArgumentException)
             {
@@ -492,8 +492,8 @@ app.MapPost("/sucursales/{sucursalId}/roles",
                 return Results.Problem(e.Message);
             }
             
-            await sucursalRoleService.AddSucursalRoleAsync(role.Id, sucursal.Id);
-            return Results.Created($"/sucursales/{sucursalId}/roles/{assignSucursalToRoleDto.RoleId}", role);
+            await sucursalRoleService.AddSucursalRoleAsync(sucursal.Id,role.Id);
+            return Results.Created($"/roles/{assignSucursalToRoleDto.RoleId}/sucursales/{assignSucursalToRoleDto.SucursalId}", role);
         })
     .WithName("AddRoleToSucursal")
     .WithOpenApi();
