@@ -30,5 +30,12 @@ public class SucursalRoleService
             throw new Exception($"Failed to add role {roleId} to sucursal {sucursalId}");
         }
     }
-
+    
+    //GetSucursalesByRole
+    public async Task<List<GetSucursalDto>> GetSucursalesByRole(int roleId)
+    {
+        var sucursales = await httpClient.GetFromJsonAsync<List<GetSucursalDto>>($"/roles/{roleId}/sucursales");
+        Console.WriteLine(sucursales);
+        return sucursales!;
+    }
 }

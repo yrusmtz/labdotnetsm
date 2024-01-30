@@ -55,12 +55,21 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var assignment in asignacionesSucursalRole)
+                @foreach(var rol in roles)
                 {
                     <tr>
-                        <td>@assignment.Item1.Descripcion</td>
-                        <td>@assignment.Item2.Description</td>
-                    </tr>
+                        <td>@rol.Description</td>
+                        <td>
+                            @foreach (GetSucursalDto sucursal in sucursalByRole.FirstOrDefault(r => r.Role.Id == rol.Id).Sucursales ?? new List<GetSucursalDto>())
+
+                    {
+                        <span class="badge bg-primary rounded-pill g-3">
+                            @sucursal.Descripcion
+                        </span>
+                    }
+                        </td>
+                
+                        </tr> 
                 }
                 </tbody>
             </table>
@@ -70,20 +79,41 @@
 
 
 @code {
-    private int selectedSucursalId;
+    
     private int selectedRoleId;
+    private int selectedSucursalId;
     private List<GetRoleDto> roles;
     private List<GetSucursalDto> sucursales;
 
     private string errorMessage = string.Empty;
-    // otras variables de instancia aquí
-    private List<Tuple<GetSucursalDto, GetRoleDto>> asignacionesSucursalRole = new List<Tuple<GetSucursalDto, GetRoleDto>>(); // nueva lista para mantener las asignaciones
+    private List<SucursalByRole> sucursalByRole = new List<SucursalByRole>();
+    
 
+    public class SucursalByRole
+    {
+        public SucursalByRole(GetRoleDto role, List<GetSucursalDto> sucursales)
+        {
+            Role = role;
+            Sucursales = sucursales;
+        }
+    
+        public GetRoleDto Role { get; set; } 
+        public List<GetSucursalDto> Sucursales { get; set; }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         sucursales = await SucursalRoleService.GetSucursales();
         roles = await RoleService.GetRoles();
+        await GetSucursalByRole();
+    }
+    async Task GetSucursalByRole()
+    {
+        @foreach(GetRoleDto role in roles)
+        {
+            List<GetSucursalDto> sucursalesDtos = await SucursalRoleService.GetSucursalesByRole(role.Id);
+            sucursalByRole.Add(new SucursalByRole(role, sucursalesDtos));
+        }
     }
 
     private async Task AddSucursalRole()
@@ -91,11 +121,8 @@
         try
         {
             await SucursalRoleService.AddSucursalRole(selectedSucursalId, selectedRoleId);
-            
-            // agrega la asignación a la lista de asignaciones para que se muestre en la tabla
-            var sucursal = sucursales.First(s => s.Id == selectedSucursalId);
-            var rol = roles.First(r => r.Id == selectedRoleId);
-            asignacionesSucursalRole.Add(Tuple.Create(sucursal, rol));
+            await GetSucursalByRole();
+           
         }
         catch (Exception ex)
         {
