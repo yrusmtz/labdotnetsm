@@ -54,30 +54,35 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th scope="col">Pantalla</th>
                             <th scope="col">Rol</th>
+                            <th scope="col">Pantalla</th>
+
                         </tr>
                         </thead>
                         <tbody>
                         @foreach (var role in roles)
                         {
                             <tr>
-                                <td colspan="2" class="text-center">
+                                <td >
                                     <strong>@role.Description</strong>
                                 </td>
-                            </tr>
-                            @foreach (GetPantallaDto pantalla 
-                                     in pantallasByRole
-                                         .FirstOrDefault(
-                                             r=> r.Role.Id == role.Id).Pantallas?? new List<GetPantallaDto>())
-                            
-                            {
-                                <span class="badge bg-primary rounded-pill g-3">
-                                    @pantalla.Descripcion
-                                </span>
-                                Console.WriteLine(pantalla.Descripcion);
-                            }
 
+                                <td>
+                                    @foreach (GetPantallaDto pantalla
+                                              in pantallasByRole
+                                                  .FirstOrDefault(
+                                                      r => r.Role.Id == role.Id).Pantallas ?? new List<GetPantallaDto>())
+
+                                    {
+                                        <span class="badge bg-primary rounded-pill g-3">
+                                            @pantalla.Descripcion
+                                        </span>
+                                        
+                                    }
+
+
+                                </td>
+                            </tr>
                         }
                         </tbody>
                     </table>
@@ -99,8 +104,8 @@
 
     class PantallasByRole(GetRoleDto role, List<GetPantallaDto> pantallas)
     {
-        public GetRoleDto Role { get; set; }
-        public List<GetPantallaDto> Pantallas { get; set; }
+        public GetRoleDto Role { get; set; } = role;
+        public List<GetPantallaDto> Pantallas { get; set; } = pantallas;
     }
 
 
@@ -127,6 +132,8 @@
         try
         {
             await PantallaRoleService.AddPantallaRole(selectedPantallaId, selectedRoleId);
+            await GetPantallasByRole();
+            
         }
         catch (Exception ex)
         {
