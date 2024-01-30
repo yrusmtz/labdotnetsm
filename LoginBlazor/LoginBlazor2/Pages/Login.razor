@@ -6,7 +6,7 @@
 @using System.Text.Json
 @using System.Text
 @using Console = System.Console
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <h3>Login</h3>
 
@@ -105,12 +105,12 @@
         jwtToken = new(token);
 
         // Guardamos el token en el local storage
-        await localStorage.SetItemAsync("authToken", token);
+        await LocalStorage.SetItemAsync("authToken", token);
     
         // Almacenar la información del usuario en LocalStorage
         var user = new { Email = loginForm.Email, Name = "User Name" };
         var userJson = JsonSerializer.Serialize(user);
-        await localStorage.SetItemAsync("user", userJson);
+        await LocalStorage.SetItemAsync("user", userJson);
 
         // Aquí puedes manejar la navegación de acuerdo a si la autenticación fue exitosa
         NavigationManager.NavigateTo("/users");

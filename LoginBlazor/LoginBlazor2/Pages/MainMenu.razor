@@ -1,4 +1,6 @@
 @page "/"
+@attribute [Authorize]
+@inject NavigationManager Navigation
 <div class="content__boxed">
     <div class="content__wrap">
         <div class="row mt-3">
@@ -69,5 +71,15 @@
 </div>
 
 @code {
-    
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            
+        }
+    }
 }
