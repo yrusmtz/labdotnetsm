@@ -19,8 +19,7 @@
         }
         else
         {
-
-            <div class="card _dm-bg-navy" style="margin-bottom: 0px;"> 
+            <div class="card _dm-bg-navy" style="margin-bottom: 0px;">
                 <div class="card-body">
                     <h1 class="page-title d-flex flex-wrap align-items-center justify-content-center mb-2 mt-4">Asignar Roles a Usuario</h1>
                     <p class="text-center">Asigne un rol a un usuario específico utilizando los siguientes selectores.</p>
@@ -51,8 +50,9 @@
 
                         @if (!string.IsNullOrEmpty(errorMessage))
                         {
-                            <div class="alert alert-danger mt-3" role="alert">
+                            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
                                 @errorMessage
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         }
                     </div>
@@ -61,9 +61,6 @@
             </div>
 
             <div class="card">
-                <div class="card-header">
-                    Detalle
-                </div>
                 <div class="card-body">
 
                     <table class="table table-striped">
@@ -81,14 +78,21 @@
                                 <td>
                                     @foreach (GetRoleDto role
                                               in rolesByUser
-                                                         .FirstOrDefault(
-                                                                 r => r.User.Id == user.Id)?.Roles ??
+                                                     .FirstOrDefault(
+                                                         r => r.User.Id == user.Id)?.Roles ??
                                                  []
                                              )
                                     {
                                         <span class="badge bg-primary rounded-pill g-3">@role.Description</span>
                                     }
+
                                 </td>
+                                <td>
+                                <button class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                                   
+                                    
+                                </td> 
+
                             </tr>
                         }
 
@@ -96,7 +100,6 @@
                     </table>
                 </div>
             </div>
-
         }
     </div>
 </div>
@@ -118,6 +121,20 @@
     }
 
     private string errorMessage = string.Empty;
+    //metodo para eliminar
+    private async Task Eliminar()
+    {
+        try
+        {
+            await UserRoleService.DeleteUserRoleAsync(selectedUserId, selectedRoleId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+
+        await GetrolesByUser();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,10 +149,10 @@
         {
             List<GetRoleDto> roleDtos = await UserRoleService.GetRolesByUserIdAsync(user.Id);
             rolesByUser.Add(
-                    new RoleByUser(
-                            user,
-                            roleDtos
-                    )
+                new RoleByUser(
+                    user,
+                    roleDtos
+                )
             );
         }
     }
@@ -160,13 +177,5 @@
         NavigationManager.NavigateTo("/Security/EditUserRole/" + Id);
     }
 
-    // private async Task UpdateUsersAndRolesAsync()
-    // {
-    //     users = await UserService.GetUsers();
-    //     roles = await RoleService.GetRoles();
-    //     foreach (var user in users)
-    //     {
-    //         user.Roles = await UserRoleService.GetRolesByUserIdAsync(user.Id);
-    //     }
-    // }
+ 
 }

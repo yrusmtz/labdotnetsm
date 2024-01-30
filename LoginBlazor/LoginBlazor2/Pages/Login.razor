@@ -34,15 +34,24 @@
 
                     @if (!string.IsNullOrEmpty(loginForm.ErrorMessage))
                     {
-                        <div class="alert alert-danger mt-3" role="alert">
+                        @* <div class="alert alert-danger mt-3" role="alert"> *@
+                        @*     @loginForm.ErrorMessage *@
+                        @* </div> *@
+                        
+                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
                             @loginForm.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
                 </EditForm>
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger" role="alert">
+                    @* <div class="alert alert-danger" role="alert"> *@
+                    @*     @errorMessage *@
+                    @* </div> *@
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         @errorMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 }
                 <div class="d-flex justify-content-between mt-4">

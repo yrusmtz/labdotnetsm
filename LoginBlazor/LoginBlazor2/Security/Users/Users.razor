@@ -49,6 +49,12 @@
                     <p>Cargando...</p>
                 </div>
             }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                </div>
+            }
             else
             {
                 @foreach (GetUserDto user in users)
@@ -97,10 +103,18 @@
 
 @code {
     private List<GetUserDto> users;
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        users = await UserService.GetUsers();
+        users = await UserService.GetUsers();try
+        {
+            users = await UserService.GetUsers();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al obtener usuarios: {ex.Message}";
+        }
     }
 
     private void NavigateToUserForm()

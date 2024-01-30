@@ -7,41 +7,86 @@
 
 <div class="content__header content__boxed rounded-0 blue-background">
     <div class="content__wrap">
+        @if (pantallas is null || roles is null || pantallasByRole is null)
 
-        <!-- Project name and information -->
-        <h1 class="page-title d-flex flex-wrap align-items-center justify-content-center mb-2 mt-4">Asignar Roles a Pantalla</h1>
-        <p class="text-center">Asigne un rol a una pantalla específica utilizando los siguientes selectores.</p>
+        {
+            <Spinner/>
+        }
 
-        <!-- Sort and priority filter -->
-        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 py-4">
+        else
+        {
+            <!-- Project name and information -->
+            <h1 class="page-title d-flex flex-wrap align-items-center justify-content-center mb-2 mt-4">Asignar Roles a Pantalla</h1>
+            <p class="text-center">Asigne un rol a una pantalla específica utilizando los siguientes selectores.</p>
 
-            <div class="me-2">Selecciona la Pantalla :</div>
-            <select @bind="selectedPantallaId" class="form-select w-auto rounded" aria-label="Pantalla options">
-                @foreach (var pantalla in pantallas)
+            <!-- Sort and priority filter -->
+            <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 py-4">
+
+                <div class="me-2">Selecciona la Pantalla :</div>
+                <select @bind="selectedPantallaId" class="form-select w-auto rounded" aria-label="Pantalla options">
+                    @foreach (var pantalla in pantallas)
+                    {
+                        <option value="@pantalla.Id">@pantalla.Descripcion</option>
+                    }
+                </select>
+
+                <div class="me-2">Selecciona el Rol :</div>
+                <select @bind="selectedRoleId" class="form-select w-auto rounded" aria-label="Role options">
+                    @foreach (var role in roles)
+                    {
+                        <option value="@role.Id">@role.Description</option>
+                    }
+                </select>
+
+                <button @onclick="AddRolePantalla" class="btn btn-light rounded">Asignar</button>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <option value="@pantalla.Id">@pantalla.Descripcion</option>
+                    <div class="alert alert-danger mt-3" role="alert">
+                        @errorMessage
+                    </div>
                 }
-            </select>
+            </div>
 
-            <div class="me-2">Selecciona el Rol :</div>
-            <select @bind="selectedRoleId" class="form-select w-auto rounded" aria-label="Role options">
-                @foreach (var role in roles)
-                {
-                    <option value="@role.Id">@role.Description</option>
-                }
-            </select>
+            <div class="card">
+                <div class="card-body">
 
-            <button @onclick="AddRolePantalla" class="btn btn-light rounded">Asignar</button>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">Pantalla</th>
+                            <th scope="col">Rol</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var role in roles)
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center">
+                                    <strong>@role.Description</strong>
+                                </td>
+                            </tr>
+                            @foreach (GetPantallaDto pantalla 
+                                     in pantallasByRole
+                                         .FirstOrDefault(
+                                             r=> r.Role.Id == role.Id).Pantallas?? new List<GetPantallaDto>())
+                            
+                            {
+                                <span class="badge bg-primary rounded-pill g-3">
+                                    @pantalla.Descripcion
+                                </span>
+                                Console.WriteLine(pantalla.Descripcion);
+                            }
 
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger mt-3" role="alert">
-                    @errorMessage
+                        }
+                        </tbody>
+                    </table>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
 </div>
+
 
 @code {
     private int selectedPantallaId;
@@ -50,12 +95,32 @@
     private List<GetPantallaDto> pantallas;
 
     private string errorMessage = string.Empty;
+    private List<PantallasByRole> pantallasByRole = new List<PantallasByRole>();
+
+    class PantallasByRole(GetRoleDto role, List<GetPantallaDto> pantallas)
+    {
+        public GetRoleDto Role { get; set; }
+        public List<GetPantallaDto> Pantallas { get; set; }
+    }
+
 
     protected override async Task OnInitializedAsync()
     {
         pantallas = await PantallaRoleService.GetPantallas();
         roles = await RoleService.GetRoles();
+        await GetPantallasByRole();
     }
+
+    async Task GetPantallasByRole()
+    {
+        foreach (GetRoleDto role in roles)
+
+        {
+            List<GetPantallaDto> pantallaDtos = await PantallaRoleService.GetPantallasByRole(role.Id);
+            pantallasByRole.Add(new PantallasByRole(role, pantallaDtos));
+        }
+    }
+
 
     private async Task AddRolePantalla()
     {

@@ -44,6 +44,31 @@
     </div>
 </div>
 
+ <div class="card">
+        <div class="card-body">
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Sucursal</th>
+                    <th scope="col">Rol</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var assignment in asignacionesSucursalRole)
+                {
+                    <tr>
+                        <td>@assignment.Item1.Descripcion</td>
+                        <td>@assignment.Item2.Description</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
 @code {
     private int selectedSucursalId;
     private int selectedRoleId;
@@ -51,6 +76,9 @@
     private List<GetSucursalDto> sucursales;
 
     private string errorMessage = string.Empty;
+    // otras variables de instancia aquí
+    private List<Tuple<GetSucursalDto, GetRoleDto>> asignacionesSucursalRole = new List<Tuple<GetSucursalDto, GetRoleDto>>(); // nueva lista para mantener las asignaciones
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,6 +91,11 @@
         try
         {
             await SucursalRoleService.AddSucursalRole(selectedSucursalId, selectedRoleId);
+            
+            // agrega la asignación a la lista de asignaciones para que se muestre en la tabla
+            var sucursal = sucursales.First(s => s.Id == selectedSucursalId);
+            var rol = roles.First(r => r.Id == selectedRoleId);
+            asignacionesSucursalRole.Add(Tuple.Create(sucursal, rol));
         }
         catch (Exception ex)
         {
@@ -70,7 +103,5 @@
         }
     }
 
-    //la tabla de muchos a muchos
-
-    // asignar un rol a una pantalla
+ 
 }
