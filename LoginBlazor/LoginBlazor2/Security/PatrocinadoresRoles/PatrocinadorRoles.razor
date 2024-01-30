@@ -4,6 +4,7 @@
 
 @using LoginShared.Security.DTOs
 @using LoginBlazor2.Security.Services
+@using Microsoft.EntityFrameworkCore
 
 <div class="content__header content__boxed rounded-0 blue-background">
     <div class="content__wrap">
@@ -35,8 +36,9 @@
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="alert alert-danger mt-3" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
                     @errorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
         </div>
@@ -44,39 +46,102 @@
 </div>
 
 
+<div class="card">
+    <div class="card-body">
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Patrocinador</th>
+                <th scope="col">Rol</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var assignment in asignaciones)
+            {
+                <tr>
+                    <td>@assignment.Item1.Descripcion</td>
+                    <td>@assignment.Item2.Description</td>
+                </tr>
+            }
+            </tbody>
+            @* <td> *@
+            @*     <button class="btn btn-danger" @onclick="Eliminar">Eliminar</button> *@
+            @* *@
+            @* *@
+            @* </td> *@
+
+        </table>
+    </div>
+</div>
 
 @code {
     private int selectedPatrocinadorId;
     private int selectedRoleId;
     private List<GetRoleDto> roles;
     private List<GetPatrocinadorDto> patrocinadores;
-    
+    private List<Tuple<GetPatrocinadorDto, GetRoleDto>> asignaciones = new List<Tuple<GetPatrocinadorDto, GetRoleDto>>();
+
     private string errorMessage = string.Empty;
-    
-    protected   override async Task OnInitializedAsync()
+
+    protected override async Task OnInitializedAsync()
     {
-        
         patrocinadores = await PatrocinadorRoleService.GetPatrocinadores();
         roles = await RoleService.GetRoles();
     }
-    
+
     private async Task AddPatrocinadorRole()
     {
-        
         try
         {
-            
             await PatrocinadorRoleService.AddPatrocinadorRole(selectedPatrocinadorId, selectedRoleId);
+            var patrocinador = patrocinadores.First(p => p.Id == selectedPatrocinadorId);
+            var rol = roles.First(r => r.Id == selectedRoleId);
+            asignaciones.Add(Tuple.Create(patrocinador, rol));
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Hubo un problema al contactar al servidor ({ex.StatusCode}): {ex.Message}";
+        }
+        catch (DbUpdateException ex)
+        {
+            errorMessage = $"Hubo un problema al actualizar la base de datos: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            errorMessage = $"Ocurrió un error: {ex.Message} Por favor, intente de nuevo.";
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
+            errorMessage = $"Ha ocurrido un error desconocido: {ex.Message}";
         }
     }
     
-    
-    
-   //la tabla de muchos a muchos
-   
-   // asignar un rol a una pantalla
+    // private async Task Eliminar()
+    // {
+    //     try
+    //     {
+    //         await PatrocinadorRoleService.DeletePatrocinadorRole(selectedPatrocinadorId, selectedRoleId);
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         errorMessage = $"Error: {ex.Message}";
+    //     }
+    //
+    //     await GetrolesByUser();
+    // }
+
+    // private async Task GetrolesByUser()
+    // {
+    //     try
+    //     {
+    //         var roles = await PatrocinadorRoleService.GetRolesByPatrocinador(selectedPatrocinadorId);
+    //         var patrocinador = patrocinadores.First(p => p.Id == selectedPatrocinadorId);
+    //         asignaciones = roles.Select(r => Tuple.Create(patrocinador, r)).ToList();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         errorMessage = $"Error: {ex.Message}";
+    //     }
+    // }
 }

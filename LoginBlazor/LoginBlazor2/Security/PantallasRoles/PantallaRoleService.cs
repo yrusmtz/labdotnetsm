@@ -31,4 +31,12 @@ public class PantallaRoleService
             throw new Exception($"Failed to add role {roleId} to pantalla {pantallaId}");
         }
     }
+    
+    //GetPantallasByRole
+    public async Task<List<GetPantallaDto>> GetPantallasByRole(int roleId)
+    {
+        var pantallas = await httpClient.GetFromJsonAsync<List<GetPantallaDto>>($"/roles/{roleId}/pantallas");
+        Console.WriteLine(pantallas);
+        return pantallas!;
+    }
 }

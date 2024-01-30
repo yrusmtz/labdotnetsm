@@ -10,30 +10,56 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/themify-icons/2.0.0/css/themify-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/css/nifty.min.css" />
     <link rel="stylesheet" href="assets/premium/icon-sets/icons/line-icons/premium-line-icons.min.css">
     <link rel="stylesheet" href="assets/premium/icon-sets/icons/solid-icons/premium-solid-icons.min.css">
-    
+    <link rel="stylesheet" href="assets/vendors/loader.css/loader.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 <!--    <link rel="stylesheet" href="assets/css/app.css" />-->
     <link rel="icon" type="image/png" href="favicon.png" />
+    
     <link href="LoginBlazor2.styles.css" rel="stylesheet" />
 </head>
 
 <body>
-    <div id="app">
-        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
-            <span class="visually-hidden">Cargando...</span>
+<div id="app">
+    <div class="content__boxed">
+        <div class="content__wrap">
+            <div class="row justify-content-center">
+                <div class="col-sm-6 col-md-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+
+                            <div class="py-4 text-center">
+
+                                <!-- Loader - Ball pulse -->
+                                <div class="loader">
+                                    <div class="loader-inner ball-pulse">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <!-- END : Loader - Ball pulse -->
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-    <script src="_framework/blazor.webassembly.js"></script>
+<div id="blazor-error-ui" style="display: none;">
+    An unhandled error has occurred.
+    <a href="" class="reload">Recargar</a>
+    <a class="dismiss">🗙</a>
+</div>
+<script src="_framework/blazor.webassembly.js"></script>
 </body>
 
 </html>

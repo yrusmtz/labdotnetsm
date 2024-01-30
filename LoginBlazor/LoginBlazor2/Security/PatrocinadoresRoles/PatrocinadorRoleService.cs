@@ -31,4 +31,27 @@ public class PatrocinadorRoleService
             throw new Exception($"Failed to add role {roleId} to patrocinador {patrocinadorId}");
         }
     }
+    
+    public async Task DeletePatrocinadorRole(int patrocinadorId, int roleId)
+    {
+        var response = await httpClient.DeleteAsync($"/roles/{roleId}/patrocinadores/{patrocinadorId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to delete role {roleId} from patrocinador {patrocinadorId}");
+        }
+    }
+    
+    public async Task<List<GetPatrocinadorDto>> GetRolesByPatrocinador(int roleId)
+    {
+        var response = await httpClient.GetAsync($"/roles/{roleId}/patrocinadores");
+        if (response.IsSuccessStatusCode)
+        {
+            var patrocinadores = await response.Content.ReadFromJsonAsync<List<GetPatrocinadorDto>>();
+            return patrocinadores!;
+        }
+        else
+        {
+            throw new Exception($"Failed to retrieve patrocinadores for role {roleId}");
+        }
+    }
 }
