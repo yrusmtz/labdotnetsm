@@ -80,7 +80,7 @@
 
     private string errorMessage = string.Empty;
     private LoginFormModel loginForm = new();
-    private JwtSecurityToken jwtToken = null;
+    private JwtSecurityToken? jwtToken = null;
 
     private async Task HandleValidSubmit()
     {
@@ -103,7 +103,7 @@
         var responseContent = await response.Content.ReadAsStringAsync();
         var responseBody = JsonSerializer.Deserialize<Dictionary<string, string>>(responseContent);
 
-        if (!responseBody.TryGetValue("accessToken", out string token))
+        if (!responseBody.TryGetValue("accessToken", out string jwtToken))
         {
             // Mostrar algún error en caso de no poder obtener el token
             errorMessage = "Hubo un problema iniciando sesión. Por favor, inténtalo de nuevo.";
@@ -111,10 +111,10 @@
         }
 
         // jwtToken es una variable global donde almacenaremos el token
-        jwtToken = new(token);
+        jwtToken = new(jwtToken);
 
         // Guardamos el token en el local storage
-        await LocalStorage.SetItemAsync("authToken", token);
+        await LocalStorage.SetItemAsync("authToken", jwtToken);
     
         // Almacenar la información del usuario en LocalStorage
         var user = new { Email = loginForm.Email, Name = "User Name" };

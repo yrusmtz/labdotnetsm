@@ -16,7 +16,7 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<LoginResponseDto> LoginUserAsync(LoginRequestDto requestModel)
     {
-        var response = await _httpClient.PostAsJsonAsync("authentication/login", requestModel);
+        var response = await _httpClient.PostAsJsonAsync("auth/login", requestModel);
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadFromJsonAsync<LoginResponseDto>();

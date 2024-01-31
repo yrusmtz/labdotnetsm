@@ -133,12 +133,12 @@ string GenerateJwtToken(string email)
     return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 }
 
-app.MapPost("/auth/login", async (LoginRequest request, UserService userService) =>
+app.MapPost("/auth/login", async (LoginRequestDto request, UserService userService) =>
         {
             UserEntity user;
             try
             {
-                user = await userService.TestUserPasswordAsync(request.Email);
+                user = await userService.TestUserPasswordAsync(request.Username);
             }
             catch (ArgumentException)
             {
