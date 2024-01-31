@@ -59,6 +59,18 @@ public class SucursalRoleService
         return getRoleDto;
     }
     
+    public async Task<List<GetSucursalDto>> GetSucursalesByRoleIdAsync(int roleId)
+    {
+        var sucursalRoles = await _context.SucursalRoles.Include(ur => ur.Sucursal).Where(ur => ur.RoleId == roleId)
+            .ToListAsync();
+        return sucursalRoles.Select(ur => new GetSucursalDto
+        (
+            ur.Sucursal.Id,
+            ur.Sucursal.Codigo,
+            ur.Sucursal.Descripcion
+        )).ToList();
+    }
+    
     
     public async Task<List<GetRoleDto>> GetSucursalRolesBySucursalIdAsync(int sucursalId)
     {

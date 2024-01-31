@@ -462,6 +462,10 @@ app.MapGet("/sucursales", async (SucursalService sucursalService) => await sucur
         .WithName("GetAllSucursales")
         .WithOpenApi();
 
+app.MapGet("/roles/{roleId}/sucursales", async (string roleId, SucursalRoleService sucursalRoleService) => await sucursalRoleService.GetSucursalesByRoleIdAsync(int.Parse(roleId)))
+        .WithName("GetAllSucursalesByRoleId")
+        .WithOpenApi();
+
 app.MapPost("/roles/{roleId}/sucursales",
         async (string roleId, AssignSucursalToRoleDto assignSucursalToRoleDto, SucursalService sucursalService, RoleService roleService, SucursalRoleService sucursalRoleService) =>
         {
